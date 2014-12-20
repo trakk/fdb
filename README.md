@@ -2,6 +2,13 @@
 
 fdb: streamlined cli budget management
 
+
+# Setup #
+
+Copy `config.example.h` to `config.h` and put in the correct credentials.
+`db-setup.sql` has schema and some sample db values.
+
+
 # License/Copying #
 
 fdb (C) 2014 by David Ulrich.

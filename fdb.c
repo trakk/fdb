@@ -27,10 +27,7 @@
 #include <readline/history.h>
 
 
-static char* FDB_DB_HOST = "localhost";
-static char* FDB_DB_USER = "root";
-static char* FDB_DB_PASS = "34dS&9ee";
-static char* FDB_DB_NAME = "fdb";
+#include "config.h" // make sure your config contains the correct values
 
 
 /* ===== MYSQL HELPER FNS ===== */
@@ -71,7 +68,7 @@ MYSQL_RES* fdb_mysql_query_res(char* query) {
 			return NULL;
 		}
 		
-		if (mysql_real_connect(fdb_conn,FDB_DB_HOST,FDBD_DB_USER,FDB_DB_PASS,FDB_DB_NAME,0,NULL,0) == NULL) {
+		if (mysql_real_connect(fdb_conn,FDB_DB_HOST,FDB_DB_USER,FDB_DB_PASS,FDB_DB_NAME,0,NULL,0) == NULL) {
 			fdb_mysql_error(fdb_conn);
 			return NULL;
 		}
