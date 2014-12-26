@@ -93,6 +93,28 @@ MYSQL_RES* fdb_mysql_query_res(char* query) {
 
 /* ===== REGULAR HELPER FNS ===== */
 void print_options();
+void print_report_options();
+void print_types();
+
+
+/*
+ * 1) report / view options
+ *  c: view type data (types)
+ *  r: category report
+ *  s: summary report
+ * 2) create options
+ *  (types)
+ * 3) edit / delete options
+ *  (types)
+ * 
+ * types:
+ *  1: accounts
+ *  2: transactions
+ *  3: categories
+ *  4: vendors
+ *  5: allocations
+ */
+
 
 int do_input() {
 	char input = getchar();
@@ -104,23 +126,26 @@ int do_input() {
 			break;
 			
 		case '1':
-			printf("showing balance\n");
+			printf("report / view\n");
+			print_report_options();
 			// noop
 			
 			break;
 		
 		case '2':
-			printf("adding debit or credit\n");
+			printf("create new\n");
+			print_types();
 			// noop
 			
 			break;
 		
 		case '3':
-			printf("creating budget\n");
+			printf("edit / delete\n");
+			print_types();
 			// noop
 			
 			break;
-			
+		
 		default:
 			print_options();
 	}
@@ -129,7 +154,15 @@ int do_input() {
 }
 
 void print_options() {
-	printf("1: view balance, 2: add debit or credit, 3: create budget, x: exit\n");
+	printf("1: report / view, 2: create new, 3: edit / delete, x: exit\n");
+}
+
+void print_report_options() {
+	printf("c: view type data, r: category report, s: summary report, x: exit\n");
+}
+
+void print_types() {
+	printf("1: accounts, 2: transactions, 3: categories, 4: vendors, 5: allocations, x: exit\n");
 }
 
 
