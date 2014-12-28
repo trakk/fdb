@@ -30,6 +30,11 @@
 #include "config.h" // make sure your config contains the correct values
 
 
+#define FDB_MENU_MAIN     0
+#define FDB_MENU_REPORT   1
+#define FDB_MENU_CATEGORY 2
+
+
 /* ===== MYSQL HELPER FNS ===== */
 int fdb_mysql_close();
 int fdb_mysql_error();
@@ -92,6 +97,7 @@ MYSQL_RES* fdb_mysql_query_res(char* query) {
 
 
 /* ===== REGULAR HELPER FNS ===== */
+void print_option_list(const char** list, int length);
 void print_options();
 void print_report_options();
 void print_types();
@@ -114,6 +120,23 @@ void print_types();
  *  4: vendors
  *  5: allocations
  */
+
+
+int FDB_MENU_STATE = FDB_MENU_MAIN;
+
+const char* NAME_OPTION[] = {
+	"Report / View",
+	"Create New",
+	"Edit / Delete"
+};
+
+const char* NAME_TYPE[] = {
+	"Accounts",
+	"Allocations",
+	"Categories",
+	"Transactions",
+	"Vendors"
+};
 
 
 int do_input() {
@@ -146,6 +169,10 @@ int do_input() {
 			
 			break;
 		
+		case 10:
+			// newline
+			break;
+		
 		default:
 			print_options();
 	}
@@ -153,8 +180,16 @@ int do_input() {
 	return 1;
 }
 
+void print_option_list(const char ** list, int length) {
+	int i;
+	
+	for(i=0;i<length;i++) printf("%d: %s, ",i+1,list[i]);
+	
+	printf("x: exit\n");
+}
+
 void print_options() {
-	printf("1: report / view, 2: create new, 3: edit / delete, x: exit\n");
+	print_option_list(NAME_OPTION,3);
 }
 
 void print_report_options() {
@@ -162,7 +197,7 @@ void print_report_options() {
 }
 
 void print_types() {
-	printf("1: accounts, 2: transactions, 3: categories, 4: vendors, 5: allocations, x: exit\n");
+	print_option_list(NAME_TYPE,5);
 }
 
 
