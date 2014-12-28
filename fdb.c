@@ -30,9 +30,16 @@
 #include "config.h" // make sure your config contains the correct values
 
 
-#define FDB_MENU_MAIN     0
-#define FDB_MENU_REPORT   1
-#define FDB_MENU_CATEGORY 2
+/* ===== DEFINITIONS ===== */
+enum fdb_states {
+	FDB_MENU_MAIN,
+	FDB_MENU_REPORT,
+	FDB_MENU_CATEGORY
+} fdb_state;
+
+typedef int Event;
+
+
 
 
 /* ===== MYSQL HELPER FNS ===== */
@@ -140,7 +147,7 @@ const char* NAME_TYPE[] = {
 
 
 int do_input() {
-	char input = getchar();
+	Event input = getchar();
 	
 	switch(input) {
 		case 'x':
