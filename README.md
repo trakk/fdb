@@ -11,7 +11,7 @@ Copy `config.example.h` to `config.h` and put in the correct credentials.
 
 # License/Copying #
 
-fdb (C) 2014 by David Ulrich.
+fdb (C) 2014 - 2015  by David Ulrich.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
