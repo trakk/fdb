@@ -31,3 +31,4 @@
 # Project Specific
 fdb
 config.h
+config.lua
