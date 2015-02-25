@@ -25,17 +25,17 @@ local res = conn:execute("SELECT 'Barnacle' AS Test")
 local state = 0
 
 local options = {
-	"Report / View",
-	"Create New",
-	"Edit / Delete"
+	{ title = "Report / View", action = "view" },
+	{ title = "Create New", action = "create"},
+	{ title = "Edit / Delete", action = "edit or delete" }
 }
 
 local types = {
-	"Accounts",
-	"Allocations",
-	"Categories",
-	"Transactions",
-	"Vendors"
+	{ title = "Accounts" },
+	{ title = "Allocations" },
+	{ title = "Categories" },
+	{ title = "Transactions" },
+	{ title = "Vendors" }
 }
 
 
@@ -43,7 +43,7 @@ function print_options()
 	print "=== what would you like to do? ==="
 	
 	for i,option in ipairs(options) do
-		print(i .. ": " .. option)
+		print(i .. ": " .. option.title)
 	end
 	
 	print "x: exit"
@@ -51,10 +51,10 @@ end
 
 
 function print_types()
-	print("=== what type would you like to " .. options[state] .. "? ===")
+	print("=== what would you like to " .. options[state].action .. "? ===")
 	
 	for i,t in ipairs(types) do
-		print(i .. ": " .. t)
+		print(i .. ": " .. t.title)
 	end
 	
 	print "x: back to options menu"
