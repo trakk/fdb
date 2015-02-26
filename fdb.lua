@@ -19,7 +19,6 @@ require "config"
 local driver = require "luasql.mysql"
 local mysql = driver.mysql()
 local conn = mysql:connect(config.database,config.user,config.pass,config.host)
-local res = conn:execute("SELECT 'Barnacle' AS Test")
 
 
 local state = 0
@@ -31,11 +30,11 @@ local options = {
 }
 
 local types = {
-	{ title = "Accounts" },
-	{ title = "Allocations" },
-	{ title = "Categories" },
-	{ title = "Transactions" },
-	{ title = "Vendors" }
+	{ title = "Accounts", table = "accounts" },
+	{ title = "Allocations", table = "allocations" },
+	{ title = "Categories", table = "categories" },
+	{ title = "Transactions", table = "transactions" },
+	{ title = "Vendors", table = "vendors" }
 }
 
 
@@ -61,6 +60,36 @@ function print_types()
 end
 
 
+function type_view(t)
+	local cur = conn:execute("SELECT * FROM " .. types[t].table)
+	local res,out
+	
+	res = cur:fetch({})
+	
+	while res ~= nil do
+		out = ""
+		
+		for i,v in ipairs(res) do
+			out = out .. v .. " "
+		end
+		
+		print(out)
+		
+		res = cur:fetch({})
+	end
+end
+
+
+function type_create(t)
+	print "STUB"
+end
+
+
+function type_edit(t)
+	print "STUB"
+end
+
+
 local input,ninput
 
 print "fdb: streamlined cli budget management"
@@ -68,7 +97,7 @@ print_options()
 
 while true do
 	input = io.read()
-	ninput = tonumber(input,10)
+	ninput = tonumber(input,10) or 0
 	
 	if state == 0 then
 		if input == "x" or input == "X" then
@@ -80,7 +109,10 @@ while true do
 		if input == "x" or input == "X" then
 			state = 0
 		elseif ninput >= 1 and ninput <= #types then
-			-- ask for type specific info
+			if state == 1 then type_view(ninput)
+			elseif state == 2 then type_create(ninput)
+			elseif state == 3 then type_edit(ninput)
+			end
 		end
 	end
 	
@@ -90,6 +122,10 @@ while true do
 		print_types()
 	end
 end
+
+
+conn:close()
+mysql:close()
 
 
 print "done"
