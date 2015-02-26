@@ -15,6 +15,7 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require "config"
+require "fns"
 
 local driver = require "luasql.mysql"
 local mysql = driver.mysql()
@@ -24,9 +25,10 @@ local conn = mysql:connect(config.database,config.user,config.pass,config.host)
 local state = 0
 
 local options = {
-	{ title = "Report / View", action = "view" },
+	{ title = "View", action = "view" },
 	{ title = "Create New", action = "create"},
-	{ title = "Edit / Delete", action = "edit or delete" }
+	{ title = "Edit / Delete", action = "edit or delete" },
+	{ title = "Reporting", action = "report" }
 }
 
 local types = {
@@ -37,26 +39,37 @@ local types = {
 	{ title = "Vendors", table = "vendors" }
 }
 
+local reports = {
+	{ title = "Balances" }
+}
+
+
+function print_titles(tagline,table,xmsg)
+	print(tagline)
+	
+	for i,t in ipairs(table) do
+		print(i .. ": " .. t.title)
+	end
+		
+	print(xmsg)
+end
+
 
 function print_options()
-	print "=== what would you like to do? ==="
-	
-	for i,option in ipairs(options) do
-		print(i .. ": " .. option.title)
-	end
-	
-	print "x: exit"
+	print_titles("=== what would you like to do? ===",options,"x: exit")
+end
+
+
+function print_reports()
+	print_titles("=== which report would you like to view? ===",reports,"x: exit")
 end
 
 
 function print_types()
-	print("=== what would you like to " .. options[state].action .. "? ===")
-	
-	for i,t in ipairs(types) do
-		print(i .. ": " .. t.title)
-	end
-	
-	print "x: back to options menu"
+	print_titles(
+		"=== what would you like to " .. options[state].action .. "? ===",
+		types,
+		"x: back to options menu")
 end
 
 
@@ -81,12 +94,17 @@ end
 
 
 function type_create(t)
-	print "STUB"
+	print "STUB: type_create"
 end
 
 
 function type_edit(t)
-	print "STUB"
+	print "STUB: type_edit"
+end
+
+
+function report(r)
+	print "STUB: report"
 end
 
 
@@ -99,16 +117,22 @@ while true do
 	input = io.read()
 	ninput = tonumber(input,10) or 0
 	
-	if state == 0 then
-		if input == "x" or input == "X" then
+	if state == 0 then -- options menu
+		if quit(input) then
 			break
-		elseif ninput >= 1 and ninput <= #options then
+		elseif between(ninput,1,#options) then
 			state = ninput
 		end
+	elseif state == 4 then -- reporting
+		if quit(input) then
+			state = 0;
+		elseif between(ninput,1,#reports) then
+			report(ninput)
+		end
 	else
-		if input == "x" or input == "X" then
+		if quit(input) then
 			state = 0
-		elseif ninput >= 1 and ninput <= #types then
+		elseif between(ninput,1,#types) then
 			if state == 1 then type_view(ninput)
 			elseif state == 2 then type_create(ninput)
 			elseif state == 3 then type_edit(ninput)
@@ -118,6 +142,8 @@ while true do
 	
 	if state == 0 then
 		print_options()
+	elseif state == 4 then
+		print_reports()
 	else
 		print_types()
 	end
