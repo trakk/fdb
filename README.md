@@ -1,16 +1,23 @@
-# fdb #
+# fdb
 
 fdb: streamlined cli budget management
 
 
-# Setup #
+# setup
 
 Copy `config.example.h` to `config.h` and put in the correct credentials.
-Lua version: copy `config.example.lua` to `config.lua` and set credentials.
 `db-setup.sql` has schema and some sample db values.
 
 
-# License/Copying #
+# lua version
+
+* `db-setup.sql` has schema and some sample db values.
+* copy `config.example.lua` to `config.lua` and set credentials.
+* install `lua-sql-mysql` package or equivalent [LuaSQL](http://keplerproject.github.io/luasql/doc/us/index.html)
+* run the script `lua fdb.lua` or `luajit fdb.lua`
+
+
+# license / copying
 
 fdb (C) 2014 - 2015  by David Ulrich.
 
