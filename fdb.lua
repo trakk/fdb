@@ -32,11 +32,42 @@ local options = {
 }
 
 local types = {
-	{ title = "Accounts", table = "accounts" },
-	{ title = "Allocations", table = "allocations" },
-	{ title = "Categories", table = "categories" },
-	{ title = "Transactions", table = "transactions" },
-	{ title = "Vendors", table = "vendors" }
+	{
+		title = "Accounts",
+		table = "accounts",
+		names = {
+			{ title = "Name", field = "AccountName" }
+		}
+	},
+	{
+		title = "Allocations",
+		table = "allocations"
+	},
+	{
+		title = "Categories",
+		table = "categories",
+		names = {
+			{ title = "Name", field = "CategoryName" }
+		}
+	},
+	{
+		title = "Transactions",
+		table = "transactions",
+		names = {
+			{ title = "Name", field = "TransactionName" },
+			{ title = "Date", field = "TransactionDate" },
+			{ title = "Amount", field = "TransactionAmount" },
+			{ title = "Account", field = "AccountID", table = "accounts" },
+			{ title = "Vendor", field = "VendorID", table = "vendors" },
+		}
+	},
+	{
+		title = "Vendors",
+		table = "vendors",
+		names = {
+			{ title = "Name", field = "VendorName" }
+		}
+	}
 }
 
 local reports = {
@@ -64,12 +95,12 @@ end
 
 
 function print_options()
-	print_titles("=== what would you like to do? ===",options,"x: exit")
+	print_titles("=== what would you like to do? ===",options,"x: exit\n")
 end
 
 
 function print_reports()
-	print_titles("=== which report would you like to view? ===",reports,"x: exit")
+	print_titles("=== which report would you like to view? ===",reports,"x: exit\n")
 end
 
 
@@ -77,7 +108,7 @@ function print_types()
 	print_titles(
 		"=== what would you like to " .. options[state].action .. "? ===",
 		types,
-		"x: back to options menu")
+		"x: back to options menu\n")
 end
 
 
@@ -101,8 +132,47 @@ function type_view(t)
 end
 
 
+function get_field_values(t)
+	local out = {}
+	
+	print("=== New " .. types[t].title .. ": ===")
+	
+	for i,v in ipairs(types[t].names) do
+		io.write(v.title .. ": ")
+		
+		out[v.field]= io.read()
+	end
+	
+	return out
+end
+
+
+function set_field_values(t,fv)
+	local query
+	local vhead = {}
+	local vtail = {}
+	
+	for i,v in ipairs(types[t].names) do
+		table.insert(vhead,v.field)
+		table.insert(vtail,conn:escape(fv[v.field]))
+	end
+	
+	query = "INSERT INTO " .. types[t].table .. " (`" .. table.concat(vhead,"`,`") .. [[`)
+		VALUES (']] .. table.concat(vtail,"','") .. "')"
+	print(query)
+	conn:execute(query);
+end
+
+
 function type_create(t)
-	print "STUB: type_create"
+	local v
+	
+	print("=== existing types ===")
+	type_view(t)
+	
+	v = get_field_values(t)
+	
+	set_field_values(t,v)
 end
 
 
@@ -137,6 +207,7 @@ print "fdb: streamlined cli budget management"
 print_options()
 
 while true do
+	io.write("option: ")
 	input = io.read()
 	ninput = tonumber(input,10) or 0
 	
