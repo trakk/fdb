@@ -40,7 +40,15 @@ local types = {
 }
 
 local reports = {
-	{ title = "Balances" }
+	{
+		title = "Balances",
+		query = [[
+			SELECT SUM(T.TransactionAmount) AS Balance,A.AccountName
+			FROM transactions T
+			LEFT JOIN accounts A ON T.AccountID = A.AccountID
+			GROUP BY T.AccountID
+		]]
+	}
 }
 
 
@@ -104,7 +112,22 @@ end
 
 
 function report(r)
-	print "STUB: report"
+	local cur = conn:execute(reports[r].query)
+	local res,out
+	
+	res = cur:fetch({})
+	
+	while res ~= nil do
+		out = ""
+		
+		for i,v in ipairs(res) do
+			out = out .. v .. " "
+		end
+		
+		print(out)
+		
+		res = cur:fetch({})
+	end
 end
 
 
