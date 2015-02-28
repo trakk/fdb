@@ -34,10 +34,10 @@ local state = S.MENU
 
 
 local options = {}
-options[S.VIEW] = { title = "View", action = "view" },
-options[S.CREATE] = { title = "Create", action = "create"},
-options[S.MODIFY] = { title = "Edit", action = "edit" },
-options[S.DELETE] = { title = "Delete", action = "delete" },
+options[S.VIEW] = { title = "View", action = "view" }
+options[S.CREATE] = { title = "Create", action = "create"}
+options[S.MODIFY] = { title = "Edit", action = "edit" }
+options[S.DELETE] = { title = "Delete", action = "delete" }
 options[S.REPORT] = { title = "Reporting", action = "report" }
 
 
