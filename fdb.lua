@@ -22,14 +22,24 @@ local mysql = driver.mysql()
 local conn = mysql:connect(config.database,config.user,config.pass,config.host)
 
 
-local state = 0
-
-local options = {
-	{ title = "View", action = "view" },
-	{ title = "Create New", action = "create"},
-	{ title = "Edit / Delete", action = "edit or delete" },
-	{ title = "Reporting", action = "report" }
+local S = {
+	MENU = 0,
+	VIEW = 1,
+	CREATE = 2,
+	MODIFY = 3,
+	DELETE = 4,
+	REPORT = 5
 }
+local state = S.MENU
+
+
+local options = {}
+options[S.VIEW] = { title = "View", action = "view" },
+options[S.CREATE] = { title = "Create", action = "create"},
+options[S.MODIFY] = { title = "Edit", action = "edit" },
+options[S.DELETE] = { title = "Delete", action = "delete" },
+options[S.REPORT] = { title = "Reporting", action = "report" }
+
 
 local types = {
 	{
@@ -210,33 +220,35 @@ while true do
 	io.write("option: ")
 	input = io.read()
 	ninput = tonumber(input,10) or 0
+	print()
 	
-	if state == 0 then -- options menu
+	if state == S.MENU then -- options menu
 		if quit(input) then
 			break
 		elseif between(ninput,1,#options) then
 			state = ninput
 		end
-	elseif state == 4 then -- reporting
+	elseif state == S.REPORT then -- reporting
 		if quit(input) then
-			state = 0;
+			state = S.MENU;
 		elseif between(ninput,1,#reports) then
 			report(ninput)
 		end
 	else
 		if quit(input) then
-			state = 0
+			state = S.MENU
 		elseif between(ninput,1,#types) then
-			if state == 1 then type_view(ninput)
-			elseif state == 2 then type_create(ninput)
-			elseif state == 3 then type_edit(ninput)
+			if state == S.VIEW then type_view(ninput)
+			elseif state == S.CREATE then type_create(ninput)
+			elseif state == S.MODIFY then type_edit(ninput)
+			elseif state == S.DELETE then type_delete(ninput)
 			end
 		end
 	end
 	
-	if state == 0 then
+	if state == S.MENU then
 		print_options()
-	elseif state == 4 then
+	elseif state == S.REPORT then
 		print_reports()
 	else
 		print_types()
