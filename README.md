@@ -8,7 +8,7 @@ fdb: streamlined cli budget management
 * `db-setup.sql` has schema and some sample db values.
 * copy `config.example.lua` to `config.lua` and set credentials.
 * install `lua-sql-mysql` package or equivalent [LuaSQL](http://keplerproject.github.io/luasql/doc/us/index.html)
-* run the script `lua fdb.lua` or `luajit fdb.lua`
+* run the script via `./run` or `lua fdb.lua` or `luajit fdb.lua`
 
 
 # license / copying
