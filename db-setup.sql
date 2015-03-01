@@ -57,9 +57,9 @@ INSERT INTO vendors (`VendorID`,`VendorName`) VALUES
 	(1,'Kroger'),
 	(2,'Amazon'),
 	(3,'Costco'),
-	(1,'Home Depot'),
-	(2,'NES'),
-	(3,'Metro Water');
+	(4,'Home Depot'),
+	(5,'NES'),
+	(6,'Metro Water');
 
 
 -- part or all of a transaction, sent to a category

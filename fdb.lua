@@ -41,44 +41,68 @@ options[S.DELETE] = { title = "Delete", action = "delete" }
 options[S.REPORT] = { title = "Reporting", action = "report" }
 
 
-local types = {
-	{
-		title = "Accounts",
-		table = "accounts",
-		names = {
-			{ title = "Name", field = "AccountName" }
-		}
-	},
-	{
-		title = "Allocations",
-		table = "allocations"
-	},
-	{
-		title = "Categories",
-		table = "categories",
-		names = {
-			{ title = "Name", field = "CategoryName" }
-		}
-	},
-	{
-		title = "Transactions",
-		table = "transactions",
-		names = {
-			{ title = "Name", field = "TransactionName" },
-			{ title = "Date", field = "TransactionDate" },
-			{ title = "Amount", field = "TransactionAmount" },
-			{ title = "Account", field = "AccountID", table = "accounts" },
-			{ title = "Vendor", field = "VendorID", table = "vendors" },
-		}
-	},
-	{
-		title = "Vendors",
-		table = "vendors",
-		names = {
-			{ title = "Name", field = "VendorName" }
+local T = {
+	NONE = 0,
+	ACCOUNTS = 1,
+	ALLOCATIONS = 2,
+	CATEGORIES = 3,
+	TRANSACTIONS = 4,
+	VENDORS = 5,
+	ALLOCATION_ITEMS = 6,
+	LINE_ITEMS = 7
+}
+
+local types = {}
+types[T.ACCOUNTS] = {
+	title = "Accounts",
+	table = "accounts",
+	names = {
+		{ title = "Name", field = "AccountName" }
+	}
+}
+types[T.ALLOCATIONS] = {
+	title = "Allocations",
+	table = "allocations",
+	names = {
+		{ title = "Name", field = "AllocationName" }
+	}
+}
+types[T.CATEGORIES] = {
+	title = "Categories",
+	table = "categories",
+	names = {
+		{ title = "Name", field = "CategoryName" }
+	}
+}
+types[T.TRANSACTIONS] = {
+	title = "Transactions",
+	table = "transactions",
+	names = {
+		{ title = "Name", field = "TransactionName" },
+		{ title = "Date", field = "TransactionDate" },
+		{ title = "Amount", field = "TransactionAmount" },
+		{
+			title = "Account",
+			field = "AccountID",
+			table = "accounts",
+			type_t = T.ACCOUNTS
+		},
+		{
+			title = "Vendor",
+			field = "VendorID",
+			table = "vendors",
+			type_t = T.VENDORS
 		}
 	}
 }
+types[T.VENDORS] = {
+	title = "Vendors",
+	table = "vendors",
+	names = {
+		{ title = "Name", field = "VendorName" }
+	}
+}
+
 
 local reports = {
 	{
@@ -110,7 +134,10 @@ end
 
 
 function print_reports()
-	print_titles("=== which report would you like to view? ===",reports,"x: exit\n")
+	print_titles(
+		"=== which report would you like to view? ===",
+		reports,
+		"x: exit\n")
 end
 
 
@@ -148,6 +175,8 @@ function get_field_values(t)
 	print("=== New " .. types[t].title .. ": ===")
 	
 	for i,v in ipairs(types[t].names) do
+		if v.type_t then type_view(v.type_t) end
+		
 		io.write(v.title .. ": ")
 		
 		out[v.field]= io.read()
@@ -167,9 +196,10 @@ function set_field_values(t,fv)
 		table.insert(vtail,conn:escape(fv[v.field]))
 	end
 	
-	query = "INSERT INTO " .. types[t].table .. " (`" .. table.concat(vhead,"`,`") .. [[`)
+	query = "INSERT INTO " .. types[t].table .. [[
+		(`]] .. table.concat(vhead,"`,`") .. [[`)
 		VALUES (']] .. table.concat(vtail,"','") .. "')"
-	print(query)
+	
 	conn:execute(query);
 end
 
@@ -188,6 +218,18 @@ end
 
 function type_edit(t)
 	print "STUB: type_edit"
+end
+
+
+function type_delete(t)
+	print "STUB: type_delete"
+end
+
+
+function state_view(t) -- type_view was useful in other places
+	print("=== " .. types[t].title .. " ===")
+	type_view(t)
+	print()
 end
 
 
@@ -238,7 +280,7 @@ while true do
 		if quit(input) then
 			state = S.MENU
 		elseif between(ninput,1,#types) then
-			if state == S.VIEW then type_view(ninput)
+			if state == S.VIEW then state_view(ninput)
 			elseif state == S.CREATE then type_create(ninput)
 			elseif state == S.MODIFY then type_edit(ninput)
 			elseif state == S.DELETE then type_delete(ninput)
