@@ -184,15 +184,28 @@ function delete_by_id(t,id)
 end
 
 
-function get_field_values(t)
+function get_field_values(t,title,id)
+	local cur,res
+	local query
 	local out = {}
 	
-	print("=== New " .. types[t].title .. ": ===")
+	print("=== " .. title .. " " .. types[t].title .. ": ===")
+	
+	if id then
+		query = "SELECT * FROM " .. types[t].table .. [[
+			WHERE ]] .. types[t].id_field .. " = " .. id
+		cur = conn:execute(query)
+		pre = cur:fetch({},"a")
+	end
 	
 	for i,v in ipairs(types[t].names) do
 		if v.type_t then type_view(v.type_t) end
 		
-		io.write(v.title .. ": ")
+		if id then
+			io.write(v.title .. "(" .. pre[v.field] .. "): ")
+		else
+			io.write(v.title .. ": ")
+		end
 		
 		out[v.field]= io.read()
 	end
@@ -219,6 +232,22 @@ function set_field_values(t,fv)
 end
 
 
+function update_field_values(t,fv,id)
+	local query
+	local vs = {}
+	
+	for i,v in ipairs(types[t].names) do
+		table.insert(vs,"`" .. v.field .. "` = '" .. conn:escape(fv[v.field]) .. "'")
+	end
+	
+	query = "UPDATE " .. types[t].table .. [[
+		SET ]] .. table.concat(vs,",") .. [[
+		WHERE ]] .. types[t].id_field .. " = " .. id
+	
+	conn:execute(query);
+end
+
+
 function type_create(t)
 	local v
 	
@@ -226,14 +255,28 @@ function type_create(t)
 	type_view(t)
 	print()
 	
-	v = get_field_values(t)
+	v = get_field_values(t,"New")
 	
 	set_field_values(t,v)
 end
 
 
 function type_edit(t)
-	print "STUB: type_edit"
+	local i,n,v
+	
+	print("=== existing " .. types[t].title .. " ===")
+	type_view(t)
+	print()
+	
+	io.write("edit: ")
+	
+	i = io.read()
+	
+	n = number(i)
+	
+	v = get_field_values(t,"Edit",n)
+	
+	update_field_values(t,v,n)
 end
 
 
