@@ -56,6 +56,7 @@ local types = {}
 types[T.ACCOUNTS] = {
 	title = "Accounts",
 	table = "accounts",
+	id_field = "AccountID",
 	names = {
 		{ title = "Name", field = "AccountName" }
 	}
@@ -63,6 +64,7 @@ types[T.ACCOUNTS] = {
 types[T.ALLOCATIONS] = {
 	title = "Allocations",
 	table = "allocations",
+	id_field = "AllocationID",
 	names = {
 		{ title = "Name", field = "AllocationName" }
 	}
@@ -70,6 +72,7 @@ types[T.ALLOCATIONS] = {
 types[T.CATEGORIES] = {
 	title = "Categories",
 	table = "categories",
+	id_field = "CategoryID",
 	names = {
 		{ title = "Name", field = "CategoryName" }
 	}
@@ -77,6 +80,7 @@ types[T.CATEGORIES] = {
 types[T.TRANSACTIONS] = {
 	title = "Transactions",
 	table = "transactions",
+	id_field = "TransactionID",
 	names = {
 		{ title = "Name", field = "TransactionName" },
 		{ title = "Date", field = "TransactionDate" },
@@ -98,6 +102,7 @@ types[T.TRANSACTIONS] = {
 types[T.VENDORS] = {
 	title = "Vendors",
 	table = "vendors",
+	id_field = "VendorID",
 	names = {
 		{ title = "Name", field = "VendorName" }
 	}
@@ -169,6 +174,16 @@ function type_view(t)
 end
 
 
+function delete_by_id(t,id)
+	local query
+	
+	query = "DELETE FROM " .. types[t].table .. [[
+		WHERE ]] .. types[t].id_field .. " = " .. id
+	
+	conn:execute(query)
+end
+
+
 function get_field_values(t)
 	local out = {}
 	
@@ -207,8 +222,9 @@ end
 function type_create(t)
 	local v
 	
-	print("=== existing types ===")
+	print("=== existing " .. types[t].title .. " ===")
 	type_view(t)
+	print()
 	
 	v = get_field_values(t)
 	
@@ -222,7 +238,19 @@ end
 
 
 function type_delete(t)
-	print "STUB: type_delete"
+	local i,n
+	
+	print("=== existing " .. types[t].title .. " ===")
+	type_view(t)
+	print()
+	
+	io.write("delete: ")
+	
+	i = io.read()
+	
+	n = number(i)
+	
+	delete_by_id(t,n)
 end
 
 
@@ -261,7 +289,7 @@ print_options()
 while true do
 	io.write("option: ")
 	input = io.read()
-	ninput = tonumber(input,10) or 0
+	ninput = number(input)
 	print()
 	
 	if state == S.MENU then -- options menu
@@ -288,12 +316,9 @@ while true do
 		end
 	end
 	
-	if state == S.MENU then
-		print_options()
-	elseif state == S.REPORT then
-		print_reports()
-	else
-		print_types()
+	if state == S.MENU then print_options()
+	elseif state == S.REPORT then print_reports()
+	else print_types()
 	end
 end
 

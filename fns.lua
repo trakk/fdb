@@ -15,11 +15,16 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 function between(n,a,b)
-	n = tonumber(n,10) or 0
-	a = tonumber(a,10) or 0
-	b = tonumber(b,10) or 0
+	n = number(n)
+	a = number(a)
+	b = number(b)
 	
 	return (n >= a and n <= b)
+end
+
+
+function number(n)
+	return tonumber(n,10) or 0
 end
 
 

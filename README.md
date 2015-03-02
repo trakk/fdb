@@ -11,7 +11,18 @@ fdb: streamlined cli budget management
 * run the script via `./run` or `lua fdb.lua` or `luajit fdb.lua`
 
 
-# license / copying
+# reports
+
+Current reports:
+* Balances -- summary of current balance, by Account
+
+Planned reports:
+* Categories -- summary of current balance, by Category
+* Savings Rate -- previous 1, 3, 6, 12 months
+* Projections
+
+
+# license
 
 fdb (C) 2014 - 2015  by David Ulrich.
 
