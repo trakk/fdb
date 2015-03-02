@@ -31,3 +31,48 @@ end
 function quit(input)
 	return (input == "x" or input == "X")
 end
+
+
+-- SQL Helpers
+function select_fields(t)
+	local fields = {}
+	local joins = {}
+	
+	table.insert(fields,sql_field(types[t].id_field,types[t].sql_id))
+	
+	for i,v in ipairs(types[t].names) do
+		if v.type_t then
+			table.insert(fields,sql_field(
+				types[v.type_t].names[1].field,
+				types[v.type_t].sql_id
+			))
+			table.insert(joins,sql_join(
+				types[v.type_t].table,
+				types[v.type_t].sql_id,
+				types[t].sql_id,
+				v.field
+			))
+		else
+			table.insert(fields,sql_field(v.field,types[t].sql_id))
+		end
+	end
+	
+	return "SELECT " .. table.concat(fields,",") .. [[
+		FROM ]] .. types[t].table .. " " .. types[t].sql_id .. [[
+		]] .. table.concat(joins,"\n")
+end
+
+
+function sql_field(name,letter)
+	return letter .. ".`" .. name .. "`"
+end
+
+
+function sql_join(table,l1,l2,field)
+	return " LEFT JOIN `" .. table .. "` " .. l1 .. " ON " .. l1 .. ".`" .. field .. "` = " .. l2 .. ".`" .. field .. "` "
+end
+
+
+function where_id(t,id)
+	return " WHERE `" .. types[t].id_field .. "` = " .. number(id)
+end

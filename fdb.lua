@@ -16,6 +16,7 @@
 
 require "config"
 require "fns"
+require "types"
 
 local driver = require "luasql.mysql"
 local mysql = driver.mysql()
@@ -39,74 +40,6 @@ options[S.CREATE] = { title = "Create", action = "create"}
 options[S.MODIFY] = { title = "Edit", action = "edit" }
 options[S.DELETE] = { title = "Delete", action = "delete" }
 options[S.REPORT] = { title = "Reporting", action = "report" }
-
-
-local T = {
-	NONE = 0,
-	ACCOUNTS = 1,
-	ALLOCATIONS = 2,
-	CATEGORIES = 3,
-	TRANSACTIONS = 4,
-	VENDORS = 5,
-	ALLOCATION_ITEMS = 6,
-	LINE_ITEMS = 7
-}
-
-local types = {}
-types[T.ACCOUNTS] = {
-	title = "Accounts",
-	table = "accounts",
-	id_field = "AccountID",
-	names = {
-		{ title = "Name", field = "AccountName" }
-	}
-}
-types[T.ALLOCATIONS] = {
-	title = "Allocations",
-	table = "allocations",
-	id_field = "AllocationID",
-	names = {
-		{ title = "Name", field = "AllocationName" }
-	}
-}
-types[T.CATEGORIES] = {
-	title = "Categories",
-	table = "categories",
-	id_field = "CategoryID",
-	names = {
-		{ title = "Name", field = "CategoryName" }
-	}
-}
-types[T.TRANSACTIONS] = {
-	title = "Transactions",
-	table = "transactions",
-	id_field = "TransactionID",
-	names = {
-		{ title = "Name", field = "TransactionName" },
-		{ title = "Date", field = "TransactionDate" },
-		{ title = "Amount", field = "TransactionAmount" },
-		{
-			title = "Account",
-			field = "AccountID",
-			table = "accounts",
-			type_t = T.ACCOUNTS
-		},
-		{
-			title = "Vendor",
-			field = "VendorID",
-			table = "vendors",
-			type_t = T.VENDORS
-		}
-	}
-}
-types[T.VENDORS] = {
-	title = "Vendors",
-	table = "vendors",
-	id_field = "VendorID",
-	names = {
-		{ title = "Name", field = "VendorName" }
-	}
-}
 
 
 local reports = {
@@ -155,7 +88,7 @@ end
 
 
 function type_view(t)
-	local cur = conn:execute("SELECT * FROM " .. types[t].table)
+	local cur = conn:execute(select_fields(t))
 	local res,out
 	
 	res = cur:fetch({})
@@ -177,8 +110,7 @@ end
 function delete_by_id(t,id)
 	local query
 	
-	query = "DELETE FROM " .. types[t].table .. [[
-		WHERE ]] .. types[t].id_field .. " = " .. id
+	query = "DELETE FROM " .. types[t].table .. where_id(t,id)
 	
 	conn:execute(query)
 end
@@ -192,8 +124,7 @@ function get_field_values(t,title,id)
 	print("=== " .. title .. " " .. types[t].title .. ": ===")
 	
 	if id then
-		query = "SELECT * FROM " .. types[t].table .. [[
-			WHERE ]] .. types[t].id_field .. " = " .. id
+		query = select_fields(t) .. where_id(t,id)
 		cur = conn:execute(query)
 		pre = cur:fetch({},"a")
 	end
@@ -241,8 +172,7 @@ function update_field_values(t,fv,id)
 	end
 	
 	query = "UPDATE " .. types[t].table .. [[
-		SET ]] .. table.concat(vs,",") .. [[
-		WHERE ]] .. types[t].id_field .. " = " .. id
+		SET ]] .. table.concat(vs,",") .. where_id(t,id)
 	
 	conn:execute(query);
 end
