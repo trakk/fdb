@@ -15,16 +15,16 @@ fdb: streamlined cli budget management
 
 Current reports:
 * Balances -- summary of current balance, by Account
+* Categories -- summary of current balance, by Category
 
 Planned reports:
-* Categories -- summary of current balance, by Category
 * Savings Rate -- previous 1, 3, 6, 12 months
 * Projections
 
 
 # license
 
-fdb (C) 2014 - 2015  by David Ulrich.
+fdb (C) 2014 - 2015  David Ulrich.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published

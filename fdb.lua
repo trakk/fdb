@@ -46,6 +46,15 @@ local reports = {
 	{
 		title = "Balances",
 		query = [[
+			SELECT SUM(TI.LineItemAmount) AS Balance,C.CategoryName
+			FROM line_items TI
+			LEFT JOIN categories C ON TI.CategoryID = C.CategoryID
+			GROUP BY TI.CategoryID
+		]]
+	},
+	{
+		title = "Categories",
+		query = [[
 			SELECT SUM(T.TransactionAmount) AS Balance,A.AccountName
 			FROM transactions T
 			LEFT JOIN accounts A ON T.AccountID = A.AccountID
@@ -130,7 +139,10 @@ function get_field_values(t,title,id)
 	end
 	
 	for i,v in ipairs(types[t].names) do
-		if v.type_t then type_view(v.type_t) end
+		if v.type_t then
+			type_view(v.type_t)
+			print("n: Create New\n")
+		end
 		
 		if id then
 			io.write(v.title .. "(" .. pre[v.field] .. "): ")
@@ -139,6 +151,10 @@ function get_field_values(t,title,id)
 		end
 		
 		out[v.field]= io.read()
+		
+		if v.type_t and new(out[v.field])  then
+			out[v.field] = type_create(v.type_t)
+		end
 	end
 	
 	return out
@@ -160,6 +176,8 @@ function set_field_values(t,fv)
 		VALUES (']] .. table.concat(vtail,"','") .. "')"
 	
 	conn:execute(query);
+	
+	return conn:getlastautoid()
 end
 
 
@@ -179,7 +197,7 @@ end
 
 
 function type_create(t)
-	local v
+	local v,out
 	
 	print("=== existing " .. types[t].title .. " ===")
 	type_view(t)
@@ -187,7 +205,13 @@ function type_create(t)
 	
 	v = get_field_values(t,"New")
 	
-	set_field_values(t,v)
+	out = set_field_values(t,v)
+	
+	if types[t].subtype then
+		-- get subtype until completion
+	end
+	
+	return out
 end
 
 

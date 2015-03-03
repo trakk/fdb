@@ -28,6 +28,16 @@ function number(n)
 end
 
 
+function all(input)
+	return (input == "a" or input == "A")
+end
+
+
+function new(input)
+	return (input == "n" or input == "N")
+end
+
+
 function quit(input)
 	return (input == "x" or input == "X")
 end
