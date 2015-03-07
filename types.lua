@@ -39,6 +39,7 @@ types[T.ALLOCATIONS] = {
 	title = "Allocations",
 	table = "allocations",
 	sql_id = "L",
+	subtype = T.ALLOCATION_ITEMS,
 	id_field = "AllocationID",
 	names = {
 		{ title = "Name", field = "AllocationName" }
@@ -57,6 +58,7 @@ types[T.TRANSACTIONS] = {
 	title = "Transactions",
 	table = "transactions",
 	sql_id = "T",
+	subtype = T.LINE_ITEMS,
 	id_field = "TransactionID",
 	names = {
 		{ title = "Name", field = "TransactionName" },
@@ -83,5 +85,40 @@ types[T.VENDORS] = {
 	id_field = "VendorID",
 	names = {
 		{ title = "Name", field = "VendorName" }
+	}
+}
+
+subtypes = {}
+subtypes[T.LINE_ITEMS] = {
+	title = "Line Items",
+	table = "line_items",
+	sql_id = "I",
+	id_field = "LineItemID",
+	parent_id_field: "TransactionID",
+	names = {
+		{ title = "Amount", field = "LineItemAmount" },
+		{
+			title = "Category",
+			field = "CategoryID",
+			table = "categories",
+			type_t = T.CATEGORIES
+		}
+	}
+}
+subtypes[T.ALLOCATION_ITEMS] = {
+	title = "Allocation Items",
+	table = "allocation_items",
+	sql_id = "O",
+	id_field = "AllocationItemID",
+	parent_id_field: "AllocationID",
+	names = {
+		{ title = "Amount", field = "AllocationItemAmount" },
+		{ title = "Remainder?", field = "AllocationItemRemainder" },
+		{
+			title = "Category",
+			field = "CategoryID",
+			table = "categories",
+			type_t = T.CATEGORIES
+		}
 	}
 }
