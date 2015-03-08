@@ -23,6 +23,10 @@ local mysql = driver.mysql()
 local conn = mysql:connect(config.database,config.user,config.pass,config.host)
 
 
+local TT = types
+local TS = subtypes
+
+
 local S = {
 	MENU = 0,
 	VIEW = 1,
@@ -46,19 +50,19 @@ local reports = {
 	{
 		title = "Balances",
 		query = [[
-			SELECT SUM(TI.LineItemAmount) AS Balance,C.CategoryName
-			FROM line_items TI
-			LEFT JOIN categories C ON TI.CategoryID = C.CategoryID
-			GROUP BY TI.CategoryID
+			SELECT SUM(T.TransactionAmount) AS Balance,A.AccountName
+			FROM transactions T
+			LEFT JOIN accounts A ON T.AccountID = A.AccountID
+			GROUP BY T.AccountID
 		]]
 	},
 	{
 		title = "Categories",
 		query = [[
-			SELECT SUM(T.TransactionAmount) AS Balance,A.AccountName
-			FROM transactions T
-			LEFT JOIN accounts A ON T.AccountID = A.AccountID
-			GROUP BY T.AccountID
+			SELECT SUM(TI.LineItemAmount) AS Balance,C.CategoryName
+			FROM line_items TI
+			LEFT JOIN categories C ON TI.CategoryID = C.CategoryID
+			GROUP BY TI.CategoryID
 		]]
 	}
 }
@@ -91,7 +95,7 @@ end
 function print_types()
 	print_titles(
 		"=== what would you like to " .. options[state].action .. "? ===",
-		types,
+		TT,
 		"x: back to options menu\n")
 end
 
@@ -119,18 +123,18 @@ end
 function delete_by_id(t,id)
 	local query
 	
-	query = "DELETE FROM " .. types[t].table .. where_id(t,id)
+	query = "DELETE FROM " .. TT[t].table .. where_id(t,id)
 	
 	conn:execute(query)
 end
 
 
-function get_field_values(t,title,id)
+function get_field_values(t,type_t,title,id)
 	local cur,res
 	local query
 	local out = {}
 	
-	print("=== " .. title .. " " .. types[t].title .. ": ===")
+	print("=== " .. title .. " " .. type_t[t].title .. ": ===")
 	
 	if id then
 		query = select_fields(t) .. where_id(t,id)
@@ -138,9 +142,9 @@ function get_field_values(t,title,id)
 		pre = cur:fetch({},"a")
 	end
 	
-	for i,v in ipairs(types[t].names) do
-		if v.type_t then
-			type_view(v.type_t)
+	for i,v in ipairs(type_t[t].names) do
+		if v.typet then
+			type_view(v.typet)
 			print("n: Create New\n")
 		end
 		
@@ -152,8 +156,8 @@ function get_field_values(t,title,id)
 		
 		out[v.field]= io.read()
 		
-		if v.type_t and new(out[v.field])  then
-			out[v.field] = type_create(v.type_t)
+		if v.typet and new(out[v.field])  then
+			out[v.field] = type_create(v.typet)
 		end
 	end
 	
@@ -161,17 +165,17 @@ function get_field_values(t,title,id)
 end
 
 
-function set_field_values(t,fv)
+function set_field_values(t,type_t,fv)
 	local query
 	local vhead = {}
 	local vtail = {}
 	
-	for i,v in ipairs(types[t].names) do
+	for i,v in ipairs(type_t[t].names) do
 		table.insert(vhead,v.field)
 		table.insert(vtail,conn:escape(fv[v.field]))
 	end
 	
-	query = "INSERT INTO " .. types[t].table .. [[
+	query = "INSERT INTO " .. type_t[t].table .. [[
 		(`]] .. table.concat(vhead,"`,`") .. [[`)
 		VALUES (']] .. table.concat(vtail,"','") .. "')"
 	
@@ -181,15 +185,15 @@ function set_field_values(t,fv)
 end
 
 
-function update_field_values(t,fv,id)
+function update_field_values(t,type_t,fv,id)
 	local query
 	local vs = {}
 	
-	for i,v in ipairs(types[t].names) do
+	for i,v in ipairs(type_t[t].names) do
 		table.insert(vs,"`" .. v.field .. "` = '" .. conn:escape(fv[v.field]) .. "'")
 	end
 	
-	query = "UPDATE " .. types[t].table .. [[
+	query = "UPDATE " .. type_t[t].table .. [[
 		SET ]] .. table.concat(vs,",") .. where_id(t,id)
 	
 	conn:execute(query);
@@ -199,26 +203,46 @@ end
 function type_create(t)
 	local v,out
 	
-	print("=== existing " .. types[t].title .. " ===")
+	print("=== existing " .. TT[t].title .. " ===")
 	type_view(t)
 	print()
 	
-	v = get_field_values(t,"New")
+	v = get_field_values(t,TT,"New")
 	
-	out = set_field_values(t,v)
+	out = set_field_values(t,TT,v)
 	
-	if types[t].subtype then
-		-- get subtype until completion
+	if TT[t].subtype then
+		subtype_create(TT[t].subtype,v[TT[t].sum_field])
 	end
 	
 	return out
 end
 
 
+function subtype_create(s,sum)
+	local v,s_field,sub_sum
+	
+	sum = number(sum)
+	sub_sum = 0
+	
+	while sub_sum ~= sum do
+		v = get_field_values(s,TS,"new")
+		
+		if all(v[TS[s].sum_field]) then
+			v[TS[s].sum_field] = (sum - sub_sum)
+		end
+		
+		sub_sum = sub_sum + v[TS[s].sum_field]
+		
+		set_field_values(s,TS,v)
+	end
+end
+
+
 function type_edit(t)
 	local i,n,v
 	
-	print("=== existing " .. types[t].title .. " ===")
+	print("=== existing " .. TT[t].title .. " ===")
 	type_view(t)
 	print()
 	
@@ -228,16 +252,16 @@ function type_edit(t)
 	
 	n = number(i)
 	
-	v = get_field_values(t,"Edit",n)
+	v = get_field_values(t,TT,"Edit",n)
 	
-	update_field_values(t,v,n)
+	update_field_values(t,TT,v,n)
 end
 
 
 function type_delete(t)
 	local i,n
 	
-	print("=== existing " .. types[t].title .. " ===")
+	print("=== existing " .. TT[t].title .. " ===")
 	type_view(t)
 	print()
 	
@@ -252,7 +276,7 @@ end
 
 
 function state_view(t) -- type_view was useful in other places
-	print("=== " .. types[t].title .. " ===")
+	print("=== " .. TT[t].title .. " ===")
 	type_view(t)
 	print()
 end
@@ -300,6 +324,7 @@ while true do
 			state = S.MENU;
 		elseif between(ninput,1,#reports) then
 			report(ninput)
+			print()
 		end
 	else
 		if quit(input) then

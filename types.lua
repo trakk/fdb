@@ -40,6 +40,7 @@ types[T.ALLOCATIONS] = {
 	table = "allocations",
 	sql_id = "L",
 	subtype = T.ALLOCATION_ITEMS,
+	sum_field = "Unlimited",
 	id_field = "AllocationID",
 	names = {
 		{ title = "Name", field = "AllocationName" }
@@ -59,6 +60,7 @@ types[T.TRANSACTIONS] = {
 	table = "transactions",
 	sql_id = "T",
 	subtype = T.LINE_ITEMS,
+	sum_field = "TransactionAmount",
 	id_field = "TransactionID",
 	names = {
 		{ title = "Name", field = "TransactionName" },
@@ -68,13 +70,13 @@ types[T.TRANSACTIONS] = {
 			title = "Account",
 			field = "AccountID",
 			table = "accounts",
-			type_t = T.ACCOUNTS
+			typet = T.ACCOUNTS
 		},
 		{
 			title = "Vendor",
 			field = "VendorID",
 			table = "vendors",
-			type_t = T.VENDORS
+			typet = T.VENDORS
 		}
 	}
 }
@@ -94,15 +96,16 @@ subtypes[T.LINE_ITEMS] = {
 	table = "line_items",
 	sql_id = "I",
 	id_field = "LineItemID",
-	parent_id_field: "TransactionID",
+	parent_id_field = "TransactionID",
+	sum_field = "LineItemAmount",
 	names = {
-		{ title = "Amount", field = "LineItemAmount" },
 		{
 			title = "Category",
 			field = "CategoryID",
 			table = "categories",
-			type_t = T.CATEGORIES
-		}
+			typet = T.CATEGORIES
+		},
+		{ title = "Amount", field = "LineItemAmount" }
 	}
 }
 subtypes[T.ALLOCATION_ITEMS] = {
@@ -110,15 +113,16 @@ subtypes[T.ALLOCATION_ITEMS] = {
 	table = "allocation_items",
 	sql_id = "O",
 	id_field = "AllocationItemID",
-	parent_id_field: "AllocationID",
+	parent_id_field = "AllocationID",
+	sum_field = "AllocationItemAmount",
 	names = {
-		{ title = "Amount", field = "AllocationItemAmount" },
-		{ title = "Remainder?", field = "AllocationItemRemainder" },
 		{
 			title = "Category",
 			field = "CategoryID",
 			table = "categories",
-			type_t = T.CATEGORIES
-		}
+			typet = T.CATEGORIES
+		},
+		{ title = "Amount", field = "AllocationItemAmount" },
+		{ title = "Remainder?", field = "AllocationItemRemainder" }
 	}
 }
