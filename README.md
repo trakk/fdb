@@ -24,7 +24,7 @@ Planned reports:
 
 # license
 
-fdb (C) 2014 - 2015  David Ulrich.
+fdb (C) 2014 - 2015  David Ulrich (http://github.com/dulrich)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
