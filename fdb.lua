@@ -175,6 +175,11 @@ function set_field_values(t,type_t,fv)
 		table.insert(vtail,conn:escape(fv[v.field]))
 	end
 	
+	if type_t[t].parent_id_field then
+		table.insert(vhead,type_t[t].parent_id_field)
+		table.insert(vtail,conn:escape(fv[type_t[t].parent_id_field]))
+	end
+	
 	query = "INSERT INTO " .. type_t[t].table .. [[
 		(`]] .. table.concat(vhead,"`,`") .. [[`)
 		VALUES (']] .. table.concat(vtail,"','") .. "')"
@@ -210,16 +215,16 @@ function type_create(t)
 	v = get_field_values(t,TT,"New")
 	
 	out = set_field_values(t,TT,v)
-	
+	print("out " .. out)
 	if TT[t].subtype then
-		subtype_create(TT[t].subtype,v[TT[t].sum_field])
+		subtype_create(TT[t].subtype,out,v[TT[t].sum_field])
 	end
 	
 	return out
 end
 
 
-function subtype_create(s,sum)
+function subtype_create(s,pid,sum)
 	local v,s_field,sub_sum
 	
 	sum = number(sum)
@@ -227,6 +232,8 @@ function subtype_create(s,sum)
 	
 	while sub_sum ~= sum do
 		v = get_field_values(s,TS,"new")
+		
+		v[TS[s].parent_id_field] = pid;
 		
 		if all(v[TS[s].sum_field]) then
 			v[TS[s].sum_field] = (sum - sub_sum)
