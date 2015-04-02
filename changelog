@@ -1,0 +1,9 @@
+# todo
+
+* add columns/padding to reports
+* fix zeroing problem on edit
+* date selection/checking
+
+
+# 2015-04-02 -- 1.0 "First essentially working version"
+* bugfix for parent IDs in subtype creation
