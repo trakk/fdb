@@ -156,6 +156,10 @@ function get_field_values(t,type_t,title,id)
 		
 		out[v.field]= io.read()
 		
+		if out[v.field] == "" then
+			out[v.field] = pre[v.field]
+		end
+		
 		if v.typet and new(out[v.field])  then
 			out[v.field] = type_create(v.typet)
 		end
@@ -311,7 +315,7 @@ end
 
 local input,ninput
 
-print "fdb: streamlined cli budget management"
+print "fdb: streamlined cli budget management (v1.0.1)"
 print_options()
 
 while true do
