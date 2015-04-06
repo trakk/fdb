@@ -3,6 +3,9 @@
 * add columns/padding to reports
 * date selection/checking
 
+# 2015-04-06 -- 1.0.2
+* bugfix for naming/access of type_t fields
+
 # 2015-04-04 -- 1.0.1
 * bugfix for zeroing problem on edit
 

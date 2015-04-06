@@ -70,13 +70,13 @@ types[T.TRANSACTIONS] = {
 			title = "Account",
 			field = "AccountID",
 			table = "accounts",
-			typet = T.ACCOUNTS
+			type_t = T.ACCOUNTS
 		},
 		{
 			title = "Vendor",
 			field = "VendorID",
 			table = "vendors",
-			typet = T.VENDORS
+			type_t = T.VENDORS
 		}
 	}
 }
@@ -103,7 +103,7 @@ subtypes[T.LINE_ITEMS] = {
 			title = "Category",
 			field = "CategoryID",
 			table = "categories",
-			typet = T.CATEGORIES
+			type_t = T.CATEGORIES
 		},
 		{ title = "Amount", field = "LineItemAmount" }
 	}
@@ -120,7 +120,7 @@ subtypes[T.ALLOCATION_ITEMS] = {
 			title = "Category",
 			field = "CategoryID",
 			table = "categories",
-			typet = T.CATEGORIES
+			type_t = T.CATEGORIES
 		},
 		{ title = "Amount", field = "AllocationItemAmount" },
 		{ title = "Remainder?", field = "AllocationItemRemainder" }

@@ -143,8 +143,8 @@ function get_field_values(t,type_t,title,id)
 	end
 	
 	for i,v in ipairs(type_t[t].names) do
-		if v.typet then
-			type_view(v.typet)
+		if v.type_t then
+			type_view(v.type_t)
 			print("n: Create New\n")
 		end
 		
@@ -160,8 +160,8 @@ function get_field_values(t,type_t,title,id)
 			out[v.field] = pre[v.field]
 		end
 		
-		if v.typet and new(out[v.field])  then
-			out[v.field] = type_create(v.typet)
+		if v.type_t and new(out[v.field])  then
+			out[v.field] = type_create(v.type_t)
 		end
 	end
 	
