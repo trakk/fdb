@@ -46,26 +46,7 @@ options[S.DELETE] = { title = "Delete", action = "delete" }
 options[S.REPORT] = { title = "Reporting", action = "report" }
 
 
-local reports = {
-	{
-		title = "Balances",
-		query = [[
-			SELECT SUM(T.TransactionAmount) AS Balance,A.AccountName
-			FROM transactions T
-			LEFT JOIN accounts A ON T.AccountID = A.AccountID
-			GROUP BY T.AccountID
-		]]
-	},
-	{
-		title = "Categories",
-		query = [[
-			SELECT SUM(TI.LineItemAmount) AS Balance,C.CategoryName
-			FROM line_items TI
-			LEFT JOIN categories C ON TI.CategoryID = C.CategoryID
-			GROUP BY TI.CategoryID
-		]]
-	}
-}
+local reports = require "reports"
 
 
 function print_titles(tagline,table,xmsg)
@@ -219,7 +200,7 @@ function type_create(t)
 	v = get_field_values(t,TT,"New")
 	
 	out = set_field_values(t,TT,v)
-	print("out " .. out)
+	
 	if TT[t].subtype then
 		subtype_create(TT[t].subtype,out,v[TT[t].sum_field])
 	end

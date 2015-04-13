@@ -1,7 +1,14 @@
 # todo
 
+* payments option
 * add columns/padding to reports
 * date selection/checking
+
+
+# 2015-04-12 -- 1.0.3
+* add report to show the most recent transaction per account
+* separate out reports table before it gets out of hand
+* remove a debug print statement
 
 # 2015-04-06 -- 1.0.2
 * bugfix for naming/access of type_t fields
