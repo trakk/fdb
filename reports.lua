@@ -38,9 +38,9 @@ local reports = {
 		query = [[
 			SELECT
 				T.TransactionID,
-				T.TransactionName,
 				T.TransactionDate,
 				T.TransactionAmount,
+				T.TransactionName,
 				A.AccountName,
 				V.VendorName
 			FROM transactions T

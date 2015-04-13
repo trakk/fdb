@@ -63,9 +63,9 @@ types[T.TRANSACTIONS] = {
 	sum_field = "TransactionAmount",
 	id_field = "TransactionID",
 	names = {
-		{ title = "Name", field = "TransactionName" },
 		{ title = "Date", field = "TransactionDate" },
 		{ title = "Amount", field = "TransactionAmount" },
+		{ title = "Name", field = "TransactionName" },
 		{
 			title = "Account",
 			field = "AccountID",
