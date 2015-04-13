@@ -69,7 +69,7 @@ function select_fields(t)
 	
 	return "SELECT " .. table.concat(fields,",") .. [[
 		FROM ]] .. types[t].table .. " " .. types[t].sql_id .. [[
-		]] .. table.concat(joins,"\n")
+		]] .. table.concat(joins,"\n") .. " ORDER BY " .. types[t].id_field
 end
 
 

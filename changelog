@@ -1,7 +1,7 @@
 # todo
 
 * payments option
-* add columns/padding to reports
+* add columns/padding to reports (display table)
 * date selection/checking
 
 
@@ -10,6 +10,7 @@
 * separate out reports table before it gets out of hand
 * remove a debug print statement
 * reorder transaction fields to improve readability
+* bugfix for natural ordering in view queries
 
 # 2015-04-06 -- 1.0.2
 * bugfix for naming/access of type_t fields
