@@ -14,6 +14,90 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+A = {
+	LEFT = 1,
+	RIGHT = 2,
+	CENTER = 3
+}
+
+display = {
+	AccountID = {
+		align = A.RIGHT,
+		left = 2,
+		right = 0
+	},
+	AccountName = {
+		align = A.LEFT,
+		left = 0,
+		right = 16
+	},
+	AllocationItemAmount = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
+	AllocationItemRemainder = {
+		align = A.RIGHT,
+		left = 2,
+		right = 0
+	},
+	AllocationName = {
+		align = A.LEFT,
+		left = 0,
+		right = 32
+	},
+	Balance = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
+	CategoryID = {
+		align = A.RIGHT,
+		left = 2,
+		right = 0
+	},
+	CategoryName = {
+		align = A.LEFT,
+		left = 0,
+		right = 16
+	},
+	LineItemAmount = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
+	TransactionAmount = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
+	TransactionID = {
+		align = A.RIGHT,
+		left = 3,
+		right = 0
+	},
+	TransactionDate = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
+	TransactionName = {
+		align = A.LEFT,
+		left = 0,
+		right = 32
+	},
+	VendorID = {
+		align = A.RIGHT,
+		left = 2,
+		right = 0
+	},
+	VendorName = {
+		align = A.LEFT,
+		left = 0,
+		right = 24
+	}
+}
+
 T = {
 	NONE = 0,
 	ACCOUNTS = 1,
@@ -32,7 +116,10 @@ types[T.ACCOUNTS] = {
 	sql_id = "A",
 	id_field = "AccountID",
 	names = {
-		{ title = "Name", field = "AccountName" }
+		{
+			title = "Name",
+			field = "AccountName"
+		}
 	}
 }
 types[T.ALLOCATIONS] = {
@@ -43,7 +130,10 @@ types[T.ALLOCATIONS] = {
 	sum_field = "Unlimited",
 	id_field = "AllocationID",
 	names = {
-		{ title = "Name", field = "AllocationName" }
+		{
+			title = "Name",
+			field = "AllocationName"
+		}
 	}
 }
 types[T.CATEGORIES] = {
@@ -52,7 +142,10 @@ types[T.CATEGORIES] = {
 	sql_id = "C",
 	id_field = "CategoryID",
 	names = {
-		{ title = "Name", field = "CategoryName" }
+		{
+			title = "Name",
+			field = "CategoryName"
+		}
 	}
 }
 types[T.TRANSACTIONS] = {
@@ -63,9 +156,18 @@ types[T.TRANSACTIONS] = {
 	sum_field = "TransactionAmount",
 	id_field = "TransactionID",
 	names = {
-		{ title = "Date", field = "TransactionDate" },
-		{ title = "Amount", field = "TransactionAmount" },
-		{ title = "Name", field = "TransactionName" },
+		{
+			title = "Date",
+			field = "TransactionDate"
+		},
+		{
+			title = "Amount",
+			field = "TransactionAmount"
+		},
+		{
+			title = "Name",
+			field = "TransactionName"
+		},
 		{
 			title = "Account",
 			field = "AccountID",
@@ -86,7 +188,10 @@ types[T.VENDORS] = {
 	sql_id = "V",
 	id_field = "VendorID",
 	names = {
-		{ title = "Name", field = "VendorName" }
+		{
+			title = "Name",
+			field = "VendorName"
+		}
 	}
 }
 
@@ -105,7 +210,10 @@ subtypes[T.LINE_ITEMS] = {
 			table = "categories",
 			type_t = T.CATEGORIES
 		},
-		{ title = "Amount", field = "LineItemAmount" }
+		{
+			title = "Amount",
+			field = "LineItemAmount"
+		}
 	}
 }
 subtypes[T.ALLOCATION_ITEMS] = {
@@ -122,7 +230,13 @@ subtypes[T.ALLOCATION_ITEMS] = {
 			table = "categories",
 			type_t = T.CATEGORIES
 		},
-		{ title = "Amount", field = "AllocationItemAmount" },
-		{ title = "Remainder?", field = "AllocationItemRemainder" }
+		{
+			title = "Amount",
+			field = "AllocationItemAmount"
+		},
+		{
+			title = "Remainder?",
+			field = "AllocationItemRemainder"
+		}
 	}
 }

@@ -82,7 +82,10 @@ end
 
 
 function type_view(t)
-	local cur = conn:execute(select_fields(t))
+	local fields,query
+	query,fields = select_fields(t)
+	
+	local cur = conn:execute(query)
 	local res,out
 	
 	res = cur:fetch({})
@@ -90,8 +93,8 @@ function type_view(t)
 	while res ~= nil do
 		out = ""
 		
-		for i,v in ipairs(res) do
-			out = out .. v .. " "
+		for i,v in pairs(res) do
+			out = out .. format_field(fields[i],v) .. " "
 		end
 		
 		print(out)
@@ -275,6 +278,7 @@ end
 
 
 function report(r)
+	local fields = reports[r].fields
 	local cur = conn:execute(reports[r].query)
 	local res,out
 	
@@ -284,7 +288,7 @@ function report(r)
 		out = ""
 		
 		for i,v in ipairs(res) do
-			out = out .. v .. " "
+			out = out .. format_field(fields[i],v) .. " "
 		end
 		
 		print(out)
@@ -296,7 +300,7 @@ end
 
 local input,ninput
 
-print "fdb: streamlined cli budget management (v1.0.1)"
+print "fdb: streamlined cli budget management (v1.0.4)"
 print_options()
 
 while true do

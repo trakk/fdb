@@ -5,6 +5,9 @@
 * date selection/checking
 
 
+# 2015-04-13 -- 1.0.4
+* add display formatting with fixed column widths
+
 # 2015-04-12 -- 1.0.3
 * add report to show the most recent transaction per account
 * separate out reports table before it gets out of hand

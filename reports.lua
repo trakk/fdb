@@ -22,7 +22,8 @@ local reports = {
 			FROM transactions T
 			LEFT JOIN accounts A ON T.AccountID = A.AccountID
 			GROUP BY T.AccountID
-		]]
+		]],
+		fields = { "Balance", "AccountName" }
 	},
 	{
 		title = "Categories",
@@ -31,7 +32,8 @@ local reports = {
 			FROM line_items TI
 			LEFT JOIN categories C ON TI.CategoryID = C.CategoryID
 			GROUP BY TI.CategoryID
-		]]
+		]],
+		fields = { "Balance", "CategoryName" }
 	},
 	{
 		title = "Last Transactions",
@@ -51,7 +53,15 @@ local reports = {
 				FROM transactions R
 				GROUP BY R.AccountID
 			)
-		]]
+		]],
+		fields = {
+			"TransactionID",
+			"TransactionDate",
+			"TransactionAmount",
+			"TransactionName",
+			"AccountName",
+			"VendorName"
+		}
 	}
 }
 

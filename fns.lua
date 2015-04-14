@@ -43,15 +43,37 @@ function quit(input)
 end
 
 
+function format_field(k,v)
+	local disp = display[k]
+	local ds = ""
+	
+	if not disp then return v end
+	
+	if disp.align == A.LEFT then
+		ds = "%-" .. disp.right .. "." .. disp.right .. "s"
+	elseif disp.align == A.RIGHT then
+		ds = "%" .. disp.left .. "." .. disp.left .. "s"
+	else
+		ds = "%s"
+	end
+		
+	return string.format(ds,v)
+end
+
+
 -- SQL Helpers
 function select_fields(t)
 	local fields = {}
+	local raw_fields = {}
 	local joins = {}
+	local query = ""
 	
+	table.insert(raw_fields,types[t].id_field)
 	table.insert(fields,sql_field(types[t].id_field,types[t].sql_id))
 	
 	for i,v in ipairs(types[t].names) do
 		if v.type_t then
+			table.insert(raw_fields,types[v.type_t].names[1].field)
 			table.insert(fields,sql_field(
 				types[v.type_t].names[1].field,
 				types[v.type_t].sql_id
@@ -63,13 +85,16 @@ function select_fields(t)
 				v.field
 			))
 		else
+			table.insert(raw_fields,v.field)
 			table.insert(fields,sql_field(v.field,types[t].sql_id))
 		end
 	end
 	
-	return "SELECT " .. table.concat(fields,",") .. [[
+	query = "SELECT " .. table.concat(fields,",") .. [[
 		FROM ]] .. types[t].table .. " " .. types[t].sql_id .. [[
 		]] .. table.concat(joins,"\n") .. " ORDER BY " .. types[t].id_field
+	
+	return query, raw_fields
 end
 
 
