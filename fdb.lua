@@ -115,6 +115,7 @@ end
 
 function get_field_values(t,type_t,title,id)
 	local cur,res
+	local pre = {}
 	local query
 	local out = {}
 	
@@ -134,14 +135,18 @@ function get_field_values(t,type_t,title,id)
 		
 		if id then
 			io.write(v.title .. "(" .. pre[v.field] .. "): ")
+		elseif v.default then
+			io.write(v.title .. "(" .. v.default .. "): ")
 		else
 			io.write(v.title .. ": ")
 		end
 		
 		out[v.field]= io.read()
 		
-		if out[v.field] == "" then
+		if out[v.field] == "" and id then
 			out[v.field] = pre[v.field]
+		elseif out[v.field] == "" and v.default then
+			out[v.field] = v.default
 		end
 		
 		if v.type_t and new(out[v.field])  then
@@ -300,7 +305,7 @@ end
 
 local input,ninput
 
-print "fdb: streamlined cli budget management (v1.0.4)"
+print "fdb: streamlined cli budget management (v1.0.5)"
 print_options()
 
 while true do

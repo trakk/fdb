@@ -158,7 +158,8 @@ types[T.TRANSACTIONS] = {
 	names = {
 		{
 			title = "Date",
-			field = "TransactionDate"
+			field = "TransactionDate",
+			default = os.date("%Y-%m-%d")
 		},
 		{
 			title = "Amount",

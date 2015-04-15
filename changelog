@@ -1,12 +1,15 @@
 # todo
 
 * payments option
-* add columns/padding to reports (display table)
 * date selection/checking
 
 
+# 2015-04-14 -- 1.0.5
+* add default option to types
+
 # 2015-04-13 -- 1.0.4
 * add display formatting with fixed column widths
+* add columns/padding to reports (display table)
 
 # 2015-04-12 -- 1.0.3
 * add report to show the most recent transaction per account
