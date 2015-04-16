@@ -2,7 +2,19 @@
 
 * payments option
 * date selection/checking
+* display title for reports
+* header row for view & reports
 
+# todo -- fdbc
+
+* overflow/scrolling for long transactions list
+* display created values after entry
+* display options for selection values (type_t)
+* subtype creation does not happen
+
+
+# 2015-04-15 -- 1.1.0
+* prototype conversion to curses interface `fdbc.lua`
 
 # 2015-04-14 -- 1.0.5
 * add default option to types
