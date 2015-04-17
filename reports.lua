@@ -23,7 +23,8 @@ local reports = {
 			LEFT JOIN accounts A ON T.AccountID = A.AccountID
 			GROUP BY T.AccountID
 		]],
-		fields = { "Balance", "AccountName" }
+		fields = { "Balance", "AccountName" },
+		titles = { "Balance", "Account" }
 	},
 	{
 		title = "Categories",
@@ -33,7 +34,8 @@ local reports = {
 			LEFT JOIN categories C ON TI.CategoryID = C.CategoryID
 			GROUP BY TI.CategoryID
 		]],
-		fields = { "Balance", "CategoryName" }
+		fields = { "Balance", "CategoryName" },
+		titles = { "Balance", "Category" }
 	},
 	{
 		title = "Last Transactions",
@@ -61,6 +63,14 @@ local reports = {
 			"TransactionName",
 			"AccountName",
 			"VendorName"
+		},
+		titles = {
+			"ID",
+			"Date",
+			"Amount",
+			"Description",
+			"Account",
+			"Vendor"
 		}
 	}
 }

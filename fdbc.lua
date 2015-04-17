@@ -14,7 +14,8 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local title = "fdb: streamlined cli budget management (v1.1.0)"
+local title = "fdb: streamlined cli budget management (v1.1.1)"
+local sep_s = "==============================================="
 
 require "config"
 require "fns"
@@ -122,13 +123,24 @@ end
 
 
 function type_view(t)
-	local fields,query
-	query,fields = select_fields(t)
+	local query,fields,titles
+	query,fields,titles = select_fields(t)
 	
 	local cur = conn:execute(query)
-	local res,out
+	local res,out,sep
 	
 	res = cur:fetch({})
+	
+	out = ""
+	sep = ""
+	
+	for i,v in ipairs(fields) do
+		out = out .. format_field(v,titles[i]) .. " "
+		sep = sep .. format_field(v,sep_s) .. " "
+	end
+	
+	cnprint(out)
+	cnprint(sep)
 	
 	while res ~= nil do
 		out = ""
@@ -284,7 +296,6 @@ function type_edit(t)
 	
 	cnprint("=== existing " .. TT[t].title .. " ===")
 	type_view(t)
-	cnprint()
 	
 	mprint("edit: ")
 	
@@ -303,7 +314,6 @@ function type_delete(t)
 	
 	cnprint("=== existing " .. TT[t].title .. " ===")
 	type_view(t)
-	cnprint()
 	
 	mprint("delete: ")
 	
@@ -317,17 +327,33 @@ end
 
 function state_view(t) -- type_view was useful in other places
 	cnprint("=== " .. TT[t].title .. " ===")
-	type_view(t)
 	cnprint()
+	
+	type_view(t)
 end
 
 
 function report(r)
 	local fields = reports[r].fields
+	local titles = reports[r].titles
 	local cur = conn:execute(reports[r].query)
-	local res,out
+	local res,out,sep
 	
 	res = cur:fetch({})
+	
+	cnprint("=== " .. reports[r].title .. " Report ===")
+	cnprint()
+	
+	out = ""
+	sep = ""
+	
+	for i,v in ipairs(fields) do
+		out = out .. format_field(v,titles[i]) .. " "
+		sep = sep .. format_field(v,sep_s) .. " "
+	end
+	
+	cnprint(out)
+	cnprint(sep)
 	
 	while res ~= nil do
 		out = ""

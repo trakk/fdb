@@ -117,7 +117,8 @@ types[T.ACCOUNTS] = {
 	id_field = "AccountID",
 	names = {
 		{
-			title = "Name",
+			prompt = "Name",
+			title = "Account",
 			field = "AccountName"
 		}
 	}
@@ -131,7 +132,8 @@ types[T.ALLOCATIONS] = {
 	id_field = "AllocationID",
 	names = {
 		{
-			title = "Name",
+			prompt = "Name",
+			title = "Allocation",
 			field = "AllocationName"
 		}
 	}
@@ -143,7 +145,8 @@ types[T.CATEGORIES] = {
 	id_field = "CategoryID",
 	names = {
 		{
-			title = "Name",
+			prompt = "Name",
+			title = "Category",
 			field = "CategoryName"
 		}
 	}
@@ -157,25 +160,30 @@ types[T.TRANSACTIONS] = {
 	id_field = "TransactionID",
 	names = {
 		{
+			prompt = "Date",
 			title = "Date",
 			field = "TransactionDate",
 			default = os.date("%Y-%m-%d")
 		},
 		{
+			prompt = "Amount",
 			title = "Amount",
 			field = "TransactionAmount"
 		},
 		{
-			title = "Name",
+			prompt = "Description",
+			title = "Description",
 			field = "TransactionName"
 		},
 		{
+			prompt = "Account",
 			title = "Account",
 			field = "AccountID",
 			table = "accounts",
 			type_t = T.ACCOUNTS
 		},
 		{
+			prompt = "Vendor",
 			title = "Vendor",
 			field = "VendorID",
 			table = "vendors",
@@ -190,7 +198,8 @@ types[T.VENDORS] = {
 	id_field = "VendorID",
 	names = {
 		{
-			title = "Name",
+			prompt = "Name",
+			title = "Vendor",
 			field = "VendorName"
 		}
 	}
@@ -206,12 +215,14 @@ subtypes[T.LINE_ITEMS] = {
 	sum_field = "LineItemAmount",
 	names = {
 		{
+			prompt = "Category",
 			title = "Category",
 			field = "CategoryID",
 			table = "categories",
 			type_t = T.CATEGORIES
 		},
 		{
+			prompt = "Amount",
 			title = "Amount",
 			field = "LineItemAmount"
 		}
@@ -226,17 +237,20 @@ subtypes[T.ALLOCATION_ITEMS] = {
 	sum_field = "AllocationItemAmount",
 	names = {
 		{
+			prompt = "Category",
 			title = "Category",
 			field = "CategoryID",
 			table = "categories",
 			type_t = T.CATEGORIES
 		},
 		{
+			prompt = "Amount",
 			title = "Amount",
 			field = "AllocationItemAmount"
 		},
 		{
-			title = "Remainder?",
+			prompt = "Remainder?",
+			title = "Remainder",
 			field = "AllocationItemRemainder"
 		}
 	}
