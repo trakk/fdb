@@ -6,10 +6,12 @@
 # todo -- fdbc
 
 * overflow/scrolling for long transactions list
-* display created values after entry
 * display options for selection values (type_t)
 * subtype creation does not happen
 
+
+# 2015-04-017 -- 1.1.2
+* display created values after entry
 
 # 2015-04-16 -- 1.1.1
 * display title for reports

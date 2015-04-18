@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local title = "fdb: streamlined cli budget management (v1.1.1)"
+local title = "fdb: streamlined cli budget management (v1.1.2)"
 local sep_s = "==============================================="
 
 require "config"
@@ -55,6 +55,10 @@ options[S.REPORT] = { title = "Reporting", action = "report" }
 local reports = require "reports"
 
 
+local Y,X
+Y = 0
+X = 0
+
 function cprint(str)
 	str = str or ""
 	
@@ -63,13 +67,11 @@ function cprint(str)
 end
 
 function cnprint(str)
-	local y,x
-	
 	cprint(str)
 	
-	y,x = scr:getyx()
+	scr:move(Y + 1,0)
 	
-	scr:move(y + 1,0)
+	Y,X = scr:getyx()
 end
 
 function mprint(str)
@@ -82,11 +84,20 @@ function mprint(str)
 	cprint(str)
 end
 
+local function rcnprint(str)
+	scr:move(Y,X)
+	
+	cnprint(str)
+end
+
 local function redraw()
 	scr:clear()
 	cnprint(title)
 	
-	scr:move(2,0)
+	Y = 2
+	X = 0
+	
+	scr:move(Y,X)
 end
 
 
@@ -200,6 +211,8 @@ function get_field_values(t,type_t,title,id)
 		elseif out[v.field] == "" and v.default then
 			out[v.field] = v.default
 		end
+		
+		rcnprint(v.title .. ": " .. out[v.field])
 		
 		if v.type_t and new(out[v.field])  then
 			out[v.field] = type_create(v.type_t)
