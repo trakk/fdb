@@ -14,6 +14,8 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require "fns"
+
 A = {
 	LEFT = 1,
 	RIGHT = 2,
@@ -105,8 +107,9 @@ T = {
 	CATEGORIES = 3,
 	TRANSACTIONS = 4,
 	VENDORS = 5,
-	ALLOCATION_ITEMS = 6,
-	LINE_ITEMS = 7
+	PAYMENTS = 6,
+	ALLOCATION_ITEMS = 7,
+	LINE_ITEMS = 8
 }
 
 types = {}
@@ -201,6 +204,55 @@ types[T.VENDORS] = {
 			prompt = "Name",
 			title = "Vendor",
 			field = "VendorName"
+		}
+	}
+}
+types[T.PAYMENTS] = {
+	title = "Payments",
+	table = "transactions",
+	sql_id = "P",
+	id_field = "TransactionID",
+	view = false,
+	passes = 2,
+	names = {
+		{
+			prompt = "Date",
+			title = "Date",
+			field = "TransactionDate",
+			default = os.date("%Y-%m-%d")
+		},
+		{
+			prompt = "Amount",
+			title = "Amount",
+			field = "TransactionAmount",
+			passfn = function(v,p)
+				if (p % 2) == 1 then
+					return -1 * math.abs(number(v))
+				else
+					return math.abs(number(v))
+				end
+			end
+		},
+		{
+			prompt = "Description",
+			title = "Description",
+			field = "TransactionName"
+		},
+		{
+			prompt = "From Account",
+			title = "From",
+			field = "AccountID",
+			table = "accounts",
+			type_t = T.ACCOUNTS,
+			pass = 1
+		},
+		{
+			prompt = "To Account",
+			title = "To",
+			field = "AccountID",
+			table = "accounts",
+			type_t = T.ACCOUNTS,
+			pass = 2
 		}
 	}
 }

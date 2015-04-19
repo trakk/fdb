@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local title = "fdb: streamlined cli budget management (v1.1.2)"
+local title = "fdb: streamlined cli budget management (v1.1.3)"
 local sep_s = "==============================================="
 
 require "config"
@@ -181,6 +181,7 @@ function get_field_values(t,type_t,title,id)
 	local pre = {}
 	local query
 	local out = {}
+	local fkey
 	
 	cnprint("=== " .. title .. " " .. type_t[t].title .. ": ===")
 	
@@ -191,31 +192,37 @@ function get_field_values(t,type_t,title,id)
 	end
 	
 	for i,v in ipairs(type_t[t].names) do
+		if v.pass ~= nil then
+			fkey = v.field .. v.pass
+		else
+			fkey = v.field
+		end
+		
 		if v.type_t then
 			type_view(v.type_t)
 			cnprint("n: Create New")
 		end
 		
 		if id then
-			mprint(v.title .. "(" .. pre[v.field] .. "): ")
+			mprint(v.title .. "(" .. pre[fkey] .. "): ")
 		elseif v.default then
 			mprint(v.title .. "(" .. v.default .. "): ")
 		else
 			mprint(v.title .. ": ")
 		end
 		
-		out[v.field]= scr:getstr()
+		out[fkey]= scr:getstr()
 		
-		if out[v.field] == "" and id then
-			out[v.field] = pre[v.field]
-		elseif out[v.field] == "" and v.default then
-			out[v.field] = v.default
+		if out[fkey] == "" and id then
+			out[fkey] = pre[fkey]
+		elseif out[fkey] == "" and v.default then
+			out[fkey] = v.default
 		end
 		
-		rcnprint(v.title .. ": " .. out[v.field])
+		rcnprint(v.title .. ": " .. out[fkey])
 		
-		if v.type_t and new(out[v.field])  then
-			out[v.field] = type_create(v.type_t)
+		if v.type_t and new(out[fkey])  then
+			out[fkey] = type_create(v.type_t)
 		end
 	end
 	
@@ -228,21 +235,47 @@ function set_field_values(t,type_t,fv)
 	local vhead = {}
 	local vtail = {}
 	
-	for i,v in ipairs(type_t[t].names) do
-		table.insert(vhead,v.field)
-		table.insert(vtail,conn:escape(fv[v.field]))
+	local pass = 1
+	local passes = type_t[t].passes or 1
+	
+	local fkey
+	
+	while pass <= passes do
+		query = ""
+		vhead = {}
+		vtail = {}
+		
+		for i,v in ipairs(type_t[t].names) do
+			if v.pass ~= nil then
+				fkey = v.field .. v.pass
+			else
+				fkey = v.field
+			end
+			
+			if v.pass == nil or v.pass == pass then
+				table.insert(vhead,v.field)
+				
+				if v.passfn ~= nil then
+					table.insert(vtail,conn:escape(v.passfn(fv[fkey],pass)))
+				else
+					table.insert(vtail,conn:escape(fv[fkey]))
+				end
+			end
+		end
+		
+		if type_t[t].parent_id_field then
+			table.insert(vhead,type_t[t].parent_id_field)
+			table.insert(vtail,conn:escape(fv[type_t[t].parent_id_field]))
+		end
+		
+		query = "INSERT INTO " .. type_t[t].table .. [[
+			(`]] .. table.concat(vhead,"`,`") .. [[`)
+			VALUES (']] .. table.concat(vtail,"','") .. "')"
+		
+		conn:execute(query);
+		
+		pass = pass + 1
 	end
-	
-	if type_t[t].parent_id_field then
-		table.insert(vhead,type_t[t].parent_id_field)
-		table.insert(vtail,conn:escape(fv[type_t[t].parent_id_field]))
-	end
-	
-	query = "INSERT INTO " .. type_t[t].table .. [[
-		(`]] .. table.concat(vhead,"`,`") .. [[`)
-		VALUES (']] .. table.concat(vtail,"','") .. "')"
-	
-	conn:execute(query);
 	
 	return conn:getlastautoid()
 end
@@ -267,7 +300,7 @@ function type_create(t)
 	local v,out
 	
 	cnprint("=== existing " .. TT[t].title .. " ===")
-	type_view(t)
+	if TT[t].view == nil or TT[t].view == true then type_view(t) end
 	cnprint()
 	
 	v = get_field_values(t,TT,"New")
