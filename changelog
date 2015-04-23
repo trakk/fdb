@@ -5,8 +5,11 @@
 # todo -- fdbc
 
 * overflow/scrolling for long transactions list
-* subtype creation does not happen
 
+
+# 2015-04-23 -- 1.1.4
+* add temp draw for type_t creation
+* subtype creation does not happen
 
 # 2015-04-18 -- 1.1.3
 * payments option

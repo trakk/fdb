@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local title = "fdb: streamlined cli budget management (v1.1.3)"
+local title = "fdb: streamlined cli budget management (v1.1.4)"
 local sep_s = "==============================================="
 
 require "config"
@@ -56,8 +56,14 @@ local reports = require "reports"
 
 
 local Y,X
-Y = 0
-X = 0
+Y = {
+	p = 0,
+	t = 0
+}
+X = {
+	p = 0,
+	t = 0
+}
 
 function cprint(str)
 	str = str or ""
@@ -66,12 +72,21 @@ function cprint(str)
 	scr:addstr(str)
 end
 
-function cnprint(str)
+function cnprint(str,temp)
 	cprint(str)
 	
-	scr:move(Y + 1,0)
-	
-	Y,X = scr:getyx()
+	if temp then
+		scr:move(Y.t + 1,0)
+		Y.t,X.t = scr:getyx()
+	else
+		scr:move(Y.p + 1,0)
+		Y.p,X.p = scr:getyx()
+		Y.t = Y.p
+		X.t = X.p
+	end
+end
+function tcnprint(str)
+	cnprint(str,true)
 end
 
 function mprint(str)
@@ -84,20 +99,41 @@ function mprint(str)
 	cprint(str)
 end
 
-local function rcnprint(str)
-	scr:move(Y,X)
+local function rcnprint(str,temp)
+	if temp then
+		scr:move(Y.t,X.t)
+	else
+		scr:move(Y.p,X.p)
+	end
 	
-	cnprint(str)
+	cnprint(str,temp)
 end
 
-local function redraw()
-	scr:clear()
-	cnprint(title)
+local function redraw(temp)
+	local out = ""
 	
-	Y = 2
-	X = 0
+	if temp then
+		X.t = 0
+		scr:move(Y.t,X.t)
+		
+		while Y.t > Y.p do
+			scr:clrtoeol()
+			scr:addstr("")
+			
+			Y.t = Y.t - 1
+			scr:move(Y.t,X.t)
+		end
+	else
+		scr:clear()
+		cnprint(title)
+		
+		Y.p = 2
+		Y.t = 2
+		X.p = 0
+		X.t = 0
+	end
 	
-	scr:move(Y,X)
+	scr:move(Y.p,X.p)
 end
 
 
@@ -150,8 +186,10 @@ function type_view(t)
 		sep = sep .. format_field(v,sep_s) .. " "
 	end
 	
-	cnprint(out)
-	cnprint(sep)
+	if out then
+		tcnprint(out)
+		tcnprint(sep)
+	end
 	
 	while res ~= nil do
 		out = ""
@@ -160,7 +198,7 @@ function type_view(t)
 			out = out .. format_field(fields[i],v) .. " "
 		end
 		
-		cnprint(out)
+		tcnprint(out)
 		
 		res = cur:fetch({})
 	end
@@ -183,7 +221,7 @@ function get_field_values(t,type_t,title,id)
 	local out = {}
 	local fkey
 	
-	cnprint("=== " .. title .. " " .. type_t[t].title .. ": ===")
+	tcnprint("=== " .. title .. " " .. type_t[t].title .. ": ===")
 	
 	if id then
 		query = select_fields(t) .. where_id(t,id)
@@ -200,7 +238,7 @@ function get_field_values(t,type_t,title,id)
 		
 		if v.type_t then
 			type_view(v.type_t)
-			cnprint("n: Create New")
+			tcnprint("n: Create New")
 		end
 		
 		if id then
@@ -219,6 +257,7 @@ function get_field_values(t,type_t,title,id)
 			out[fkey] = v.default
 		end
 		
+		redraw(true)
 		rcnprint(v.title .. ": " .. out[fkey])
 		
 		if v.type_t and new(out[fkey])  then
@@ -299,9 +338,9 @@ end
 function type_create(t)
 	local v,out
 	
-	cnprint("=== existing " .. TT[t].title .. " ===")
+	tcnprint("=== existing " .. TT[t].title .. " ===")
 	if TT[t].view == nil or TT[t].view == true then type_view(t) end
-	cnprint()
+	tcnprint()
 	
 	v = get_field_values(t,TT,"New")
 	
