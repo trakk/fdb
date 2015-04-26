@@ -33,6 +33,11 @@ display = {
 		left = 0,
 		right = 16
 	},
+	Allocated = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
 	AllocationItemAmount = {
 		align = A.RIGHT,
 		left = 10,
@@ -64,6 +69,16 @@ display = {
 		right = 16
 	},
 	LineItemAmount = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
+	Net = {
+		align = A.RIGHT,
+		left = 10,
+		right = 0
+	},
+	Spent = {
 		align = A.RIGHT,
 		left = 10,
 		right = 0

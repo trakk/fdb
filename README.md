@@ -19,6 +19,7 @@ Current reports:
 * Balances -- summary of current balance, by Account
 * Categories -- summary of current balance, by Category
 * Last Transactions -- most recent transaction for each Account
+* Monthly Net -- compare allocation and spend by Category, by Month
 
 Planned reports:
 * Savings Rate -- previous 1, 3, 6, 12 months
