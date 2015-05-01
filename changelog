@@ -7,6 +7,9 @@
 * overflow/scrolling for long transactions list
 
 
+# 2015-05-01 -- 1.1.6
+* bugfix where number(n) only worked on integers
+
 # 2015-04-25 -- 1.1.5
 * add "Monthly Net" report
 

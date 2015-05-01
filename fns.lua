@@ -24,7 +24,7 @@ end
 
 
 function number(n)
-	return tonumber(n,10) or 0
+	return tonumber(n) or 0
 end
 
 
