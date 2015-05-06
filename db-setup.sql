@@ -14,19 +14,17 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-DROP DATABASE IF EXISTS fdb;
-CREATE DATABASE fdb;
+CREATE DATABASE IF NOT EXISTS fdb;
 USE fdb;
 
 
 -- 'real' accounts
-DROP TABLE IF EXISTS accounts;
-CREATE TABLE accounts (
+CREATE TABLE IF NOT EXISTS accounts (
 	AccountID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	AccountName VARCHAR(128) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB;
 
-INSERT INTO accounts (`AccountID`,`AccountName`) VALUES
+INSERT IGNORE INTO accounts (`AccountID`,`AccountName`) VALUES
 	(1,'Bank'),
 	(2,'VISA'),
 	(3,'AMEX'),
@@ -34,8 +32,7 @@ INSERT INTO accounts (`AccountID`,`AccountName`) VALUES
 
 
 -- a single entry in an actual account
-DROP TABLE IF EXISTS transactions;
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
 	TransactionID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	TransactionName VARCHAR(128) NOT NULL DEFAULT '',
 	TransactionDate DATE NOT NULL DEFAULT 0,
@@ -46,13 +43,12 @@ CREATE TABLE transactions (
 
 
 -- budgeting categories, with a tracked balance
-DROP TABLE IF EXISTS categories;
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
 	CategoryID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	CategoryName VARCHAR(128) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB;
 
-INSERT INTO categories (`CategoryID`,`CategoryName`) VALUES
+INSERT IGNORE INTO categories (`CategoryID`,`CategoryName`) VALUES
 	(1,'Savings'),
 	(2,'MTI'),
 	(3,'Utilities'),
@@ -63,13 +59,12 @@ INSERT INTO categories (`CategoryID`,`CategoryName`) VALUES
 
 
 -- vendors 
-DROP TABLE IF EXISTS vendors;
-CREATE TABLE vendors (
+CREATE TABLE IF NOT EXISTS vendors (
 	VendorID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	VendorName VARCHAR(128) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB;
 
-INSERT INTO vendors (`VendorID`,`VendorName`) VALUES
+INSERT IGNORE INTO vendors (`VendorID`,`VendorName`) VALUES
 	(1,'Kroger'),
 	(2,'Amazon'),
 	(3,'Costco'),
@@ -79,8 +74,7 @@ INSERT INTO vendors (`VendorID`,`VendorName`) VALUES
 
 
 -- part or all of a transaction, sent to a category
-DROP TABLE IF EXISTS line_items;
-CREATE TABLE line_items (
+CREATE TABLE IF NOT EXISTS line_items (
 	LineItemID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	LineItemAmount DECIMAL(9,2) NOT NULL DEFAULT 0,
 	TransactionID INT NOT NULL,
@@ -90,14 +84,12 @@ CREATE TABLE line_items (
 
 -- description of how to split a transaction across categories,
 -- as a shortcut for repeating entries (paycheck, mortgage, Utilities, etc)
-DROP TABLE IF EXISTS allocations;
-CREATE TABLE allocations (
+CREATE TABLE IF NOT EXISTS allocations (
 	AllocationID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	AllocationName VARCHAR(128) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS allocation_items;
-CREATE TABLE allocation_items (
+CREATE TABLE IF NOT EXISTS allocation_items (
 	AllocationItemID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	AllocationItemAmount DECIMAL(9,2) NOT NULL DEFAULT 0,
 	AllocationRemainder BOOLEAN NOT NULL DEFAULT FALSE,
