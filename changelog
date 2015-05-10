@@ -7,6 +7,9 @@
 * overflow/scrolling for long transactions list
 
 
+# 2015-05-10 -- 1.1.7
+* add row limit to type views and reports
+
 # 2015-05-01 -- 1.1.6
 * bugfix where number(n) only worked on integers
 

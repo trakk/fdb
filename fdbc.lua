@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local title = "fdb: streamlined cli budget management (v1.1.6)"
+local title = "fdb: streamlined cli budget management (v1.1.7)"
 local sep_s = "==============================================="
 
 require "config"
@@ -169,12 +169,17 @@ function print_types()
 end
 
 
-function type_view(t)
-	local query,fields,titles
-	query,fields,titles = select_fields(t)
-	
+function display_results(query,fields,titles,max_rows,temp)
 	local cur = conn:execute(query)
-	local res,out,sep
+	local out,res,rows,sep
+	
+	local printfn
+	
+	if temp then
+		printfn = tcnprint
+	else
+		printfn = cnprint
+	end
 	
 	res = cur:fetch({})
 	
@@ -187,10 +192,11 @@ function type_view(t)
 	end
 	
 	if out then
-		tcnprint(out)
-		tcnprint(sep)
+		printfn(out)
+		printfn(sep)
 	end
 	
+	rows = {}
 	while res ~= nil do
 		out = ""
 		
@@ -198,10 +204,26 @@ function type_view(t)
 			out = out .. format_field(fields[i],v) .. " "
 		end
 		
-		tcnprint(out)
+		table.insert(rows,out)
 		
 		res = cur:fetch({})
 	end
+	
+	local lenr,minr
+	lenr = #rows
+	minr = lenr - max_rows
+	
+	for i,v in ipairs(rows) do
+		if i > minr then printfn(v) end
+	end
+end
+
+
+function type_view(t)
+	local query,fields,titles
+	query,fields,titles = select_fields(t)
+	
+	display_results(query,fields,titles,30,true)
 end
 
 
@@ -421,36 +443,12 @@ end
 function report(r)
 	local fields = reports[r].fields
 	local titles = reports[r].titles
-	local cur = conn:execute(reports[r].query)
-	local res,out,sep
-	
-	res = cur:fetch({})
+	local query  = reports[r].query
 	
 	cnprint("=== " .. reports[r].title .. " Report ===")
 	cnprint()
 	
-	out = ""
-	sep = ""
-	
-	for i,v in ipairs(fields) do
-		out = out .. format_field(v,titles[i]) .. " "
-		sep = sep .. format_field(v,sep_s) .. " "
-	end
-	
-	cnprint(out)
-	cnprint(sep)
-	
-	while res ~= nil do
-		out = ""
-		
-		for i,v in ipairs(res) do
-			out = out .. format_field(fields[i],v) .. " "
-		end
-		
-		cnprint(out)
-		
-		res = cur:fetch({})
-	end
+	display_results(query,fields,titles,30,false)
 end
 
 
