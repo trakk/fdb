@@ -78,22 +78,28 @@ local reports = {
 		query = [[
 			SELECT
 				C.CategoryName,
+				IFNULL(DATE_FORMAT(T.TransactionDate,'%y-%m'),'') AS Month,
 				SUM(IF(LI.LineItemAmount > 0,LI.LineItemAmount,0)) AS Allocated,
 				SUM(IF(LI.LineItemAmount < 0,LI.LineItemAmount,0)) AS Spent,
 				SUM(LI.LineItemAmount) AS Net
 			FROM line_items LI
 			LEFT JOIN transactions T ON LI.TransactionID = T.TransactionID
 			LEFT JOIN categories C ON LI.CategoryID = C.CategoryID
-			GROUP BY LI.CategoryID,MONTH(T.TransactionDate)
+			GROUP BY
+				LI.CategoryID,
+				YEAR(T.TransactionDate),
+				MONTH(T.TransactionDate)
 			]],
 		fields = {
 			"CategoryName",
+			"Month",
 			"Allocated",
 			"Spent",
 			"Net"
 		},
 		titles = {
 			"Category",
+			"Month",
 			"Allocated",
 			"Spent",
 			"Net"

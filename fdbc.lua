@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local title = "fdb: streamlined cli budget management (v1.1.7)"
+local title = "fdb: streamlined cli budget management (v1.1.8)"
 local sep_s = "==============================================="
 
 require "config"

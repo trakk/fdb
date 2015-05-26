@@ -7,6 +7,9 @@
 * overflow/scrolling for long transactions list
 
 
+# 2015-05-25 -- 1.1.8
+* add dates to Monthly Net report so it actually means something
+
 # 2015-05-10 -- 1.1.7
 * add row limit to type views and reports
 

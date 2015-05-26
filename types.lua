@@ -73,6 +73,11 @@ display = {
 		left = 10,
 		right = 0
 	},
+	Month = {
+		align = A.RIGHT,
+		left = 7,
+		right = 0
+	},
 	Net = {
 		align = A.RIGHT,
 		left = 10,
