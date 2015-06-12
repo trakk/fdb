@@ -358,29 +358,50 @@ end
 
 
 function type_create(t)
+	local allocated,input
 	local v,out
 	
 	tcnprint("=== existing " .. TT[t].title .. " ===")
 	if TT[t].view == nil or TT[t].view == true then type_view(t) end
 	tcnprint()
 	
+	allocated = false
+	
 	v = get_field_values(t,TT,"New")
 	
 	out = set_field_values(t,TT,v)
 	
-	if TT[t].subtype then
-		subtype_create(TT[t].subtype,out,v[TT[t].sum_field])
+	if TT[t].allocate then
+		mprint("Use allocation?")
+		input = scr:getch()
+		
+		if input < 256 then input = string.char(input) end
+		
+		if yes(input) then
+			type_view(T.ALLOCATIONS)
+			mprint("Allocation: ")
+			
+			input = nuymber(scr:getstr())
+			
+			-- fetch the allocation and create line items
+			
+			allocated = true
+		end
+	end
+	
+	if TT[t].subtype and (not allocated) then
+		subtype_create(TT[t].subtype,out,v[TT[t].sum_field],TT[t].sum_endless)
 	end
 	
 	return out
 end
 
 
-function subtype_create(s,pid,sum)
+function subtype_create(s,pid,sum,endless)
 	local v,s_field,sub_sum
 	
 	sum = number(sum)
-	sub_sum = 0
+	sub_sum = (endless ~= 0) and -4294967296 or 0
 	
 	while sub_sum ~= sum do
 		v = get_field_values(s,TS,"new")
@@ -388,7 +409,11 @@ function subtype_create(s,pid,sum)
 		v[TS[s].parent_id_field] = pid;
 		
 		if all(v[TS[s].sum_field]) then
-			v[TS[s].sum_field] = (sum - sub_sum)
+			if endless and v[TS[s].sum_field] == 0 then
+				v[TS[s].sum_field] = 0
+			else
+				v[TS[s].sum_field] = (sum - sub_sum)
+			end
 		end
 		
 		sub_sum = sub_sum + v[TS[s].sum_field]
