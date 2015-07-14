@@ -14,9 +14,15 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local title = "fdb: streamlined cli budget management (v1.1.8)"
+local sep_s = "==============================================="
+
 require "config"
 require "fns"
 require "types"
+
+local curses = require "curses"
+local scr = curses.initscr()
 
 local driver = require "luasql.mysql"
 local mysql = driver.mysql()
@@ -49,19 +55,101 @@ options[S.REPORT] = { title = "Reporting", action = "report" }
 local reports = require "reports"
 
 
+local Y,X
+Y = {
+	p = 0,
+	t = 0
+}
+X = {
+	p = 0,
+	t = 0
+}
+
+function cprint(str)
+	str = str or ""
+	
+	scr:clrtoeol()
+	scr:addstr(str)
+end
+
+function cnprint(str,temp)
+	cprint(str)
+	
+	if temp then
+		scr:move(Y.t + 1,0)
+		Y.t,X.t = scr:getyx()
+	else
+		scr:move(Y.p + 1,0)
+		Y.p,X.p = scr:getyx()
+		Y.t = Y.p
+		X.t = X.p
+	end
+end
+function tcnprint(str)
+	cnprint(str,true)
+end
+
+function mprint(str)
+	local y,x,t
+	
+	y,x = scr:getmaxyx()
+	
+	scr:move(y - 1,0)
+	
+	cprint(str)
+end
+
+local function rcnprint(str,temp)
+	if temp then
+		scr:move(Y.t,X.t)
+	else
+		scr:move(Y.p,X.p)
+	end
+	
+	cnprint(str,temp)
+end
+
+local function redraw(temp)
+	local out = ""
+	
+	if temp then
+		X.t = 0
+		scr:move(Y.t,X.t)
+		
+		while Y.t > Y.p do
+			scr:clrtoeol()
+			scr:addstr("")
+			
+			Y.t = Y.t - 1
+			scr:move(Y.t,X.t)
+		end
+	else
+		scr:clear()
+		cnprint(title)
+		
+		Y.p = 2
+		Y.t = 2
+		X.p = 0
+		X.t = 0
+	end
+	
+	scr:move(Y.p,X.p)
+end
+
+
 function print_titles(tagline,table,xmsg)
-	print(tagline)
+	cnprint(tagline)
 	
 	for i,t in ipairs(table) do
-		print(i .. ": " .. t.title)
+		cnprint(i .. ": " .. t.title)
 	end
 		
-	print(xmsg)
+	cnprint(xmsg)
 end
 
 
 function print_options()
-	print_titles("=== what would you like to do? ===",options,"x: exit\n")
+	print_titles("=== what would you like to do? ===",options,"x: exit")
 end
 
 
@@ -69,7 +157,7 @@ function print_reports()
 	print_titles(
 		"=== which report would you like to view? ===",
 		reports,
-		"x: exit\n")
+		"x: exit")
 end
 
 
@@ -77,19 +165,38 @@ function print_types()
 	print_titles(
 		"=== what would you like to " .. options[state].action .. "? ===",
 		TT,
-		"x: back to options menu\n")
+		"x: back to options menu")
 end
 
 
-function type_view(t)
-	local fields,query
-	query,fields = select_fields(t)
-	
+function display_results(query,fields,titles,max_rows,temp)
 	local cur = conn:execute(query)
-	local res,out
+	local out,res,rows,sep
+	
+	local printfn
+	
+	if temp then
+		printfn = tcnprint
+	else
+		printfn = cnprint
+	end
 	
 	res = cur:fetch({})
 	
+	out = ""
+	sep = ""
+	
+	for i,v in ipairs(fields) do
+		out = out .. format_field(v,titles[i]) .. " "
+		sep = sep .. format_field(v,sep_s) .. " "
+	end
+	
+	if out then
+		printfn(out)
+		printfn(sep)
+	end
+	
+	rows = {}
 	while res ~= nil do
 		out = ""
 		
@@ -97,10 +204,26 @@ function type_view(t)
 			out = out .. format_field(fields[i],v) .. " "
 		end
 		
-		print(out)
+		table.insert(rows,out)
 		
 		res = cur:fetch({})
 	end
+	
+	local lenr,minr
+	lenr = #rows
+	minr = lenr - max_rows
+	
+	for i,v in ipairs(rows) do
+		if i > minr then printfn(v) end
+	end
+end
+
+
+function type_view(t)
+	local query,fields,titles
+	query,fields,titles = select_fields(t)
+	
+	display_results(query,fields,titles,30,true)
 end
 
 
@@ -118,8 +241,9 @@ function get_field_values(t,type_t,title,id)
 	local pre = {}
 	local query
 	local out = {}
+	local fkey
 	
-	print("=== " .. title .. " " .. type_t[t].title .. ": ===")
+	tcnprint("=== " .. title .. " " .. type_t[t].title .. ": ===")
 	
 	if id then
 		query = select_fields(t) .. where_id(t,id)
@@ -128,29 +252,38 @@ function get_field_values(t,type_t,title,id)
 	end
 	
 	for i,v in ipairs(type_t[t].names) do
+		if v.pass ~= nil then
+			fkey = v.field .. v.pass
+		else
+			fkey = v.field
+		end
+		
 		if v.type_t then
 			type_view(v.type_t)
-			print("n: Create New\n")
+			tcnprint("n: Create New")
 		end
 		
 		if id then
-			io.write(v.title .. "(" .. pre[v.field] .. "): ")
+			mprint(v.title .. "(" .. pre[fkey] .. "): ")
 		elseif v.default then
-			io.write(v.title .. "(" .. v.default .. "): ")
+			mprint(v.title .. "(" .. v.default .. "): ")
 		else
-			io.write(v.title .. ": ")
+			mprint(v.title .. ": ")
 		end
 		
-		out[v.field]= io.read()
+		out[fkey]= scr:getstr()
 		
-		if out[v.field] == "" and id then
-			out[v.field] = pre[v.field]
-		elseif out[v.field] == "" and v.default then
-			out[v.field] = v.default
+		if out[fkey] == "" and id then
+			out[fkey] = pre[fkey]
+		elseif out[fkey] == "" and v.default then
+			out[fkey] = v.default
 		end
 		
-		if v.type_t and new(out[v.field])  then
-			out[v.field] = type_create(v.type_t)
+		redraw(true)
+		rcnprint(v.title .. ": " .. out[fkey])
+		
+		if v.type_t and new(out[fkey])  then
+			out[fkey] = type_create(v.type_t)
 		end
 	end
 	
@@ -163,21 +296,47 @@ function set_field_values(t,type_t,fv)
 	local vhead = {}
 	local vtail = {}
 	
-	for i,v in ipairs(type_t[t].names) do
-		table.insert(vhead,v.field)
-		table.insert(vtail,conn:escape(fv[v.field]))
+	local pass = 1
+	local passes = type_t[t].passes or 1
+	
+	local fkey
+	
+	while pass <= passes do
+		query = ""
+		vhead = {}
+		vtail = {}
+		
+		for i,v in ipairs(type_t[t].names) do
+			if v.pass ~= nil then
+				fkey = v.field .. v.pass
+			else
+				fkey = v.field
+			end
+			
+			if v.pass == nil or v.pass == pass then
+				table.insert(vhead,v.field)
+				
+				if v.passfn ~= nil then
+					table.insert(vtail,conn:escape(v.passfn(fv[fkey],pass)))
+				else
+					table.insert(vtail,conn:escape(fv[fkey]))
+				end
+			end
+		end
+		
+		if type_t[t].parent_id_field then
+			table.insert(vhead,type_t[t].parent_id_field)
+			table.insert(vtail,conn:escape(fv[type_t[t].parent_id_field]))
+		end
+		
+		query = "INSERT INTO " .. type_t[t].table .. [[
+			(`]] .. table.concat(vhead,"`,`") .. [[`)
+			VALUES (']] .. table.concat(vtail,"','") .. "')"
+		
+		conn:execute(query);
+		
+		pass = pass + 1
 	end
-	
-	if type_t[t].parent_id_field then
-		table.insert(vhead,type_t[t].parent_id_field)
-		table.insert(vtail,conn:escape(fv[type_t[t].parent_id_field]))
-	end
-	
-	query = "INSERT INTO " .. type_t[t].table .. [[
-		(`]] .. table.concat(vhead,"`,`") .. [[`)
-		VALUES (']] .. table.concat(vtail,"','") .. "')"
-	
-	conn:execute(query);
 	
 	return conn:getlastautoid()
 end
@@ -201,9 +360,9 @@ end
 function type_create(t)
 	local v,out
 	
-	print("=== existing " .. TT[t].title .. " ===")
-	type_view(t)
-	print()
+	tcnprint("=== existing " .. TT[t].title .. " ===")
+	if TT[t].view == nil or TT[t].view == true then type_view(t) end
+	tcnprint()
 	
 	v = get_field_values(t,TT,"New")
 	
@@ -242,13 +401,12 @@ end
 function type_edit(t)
 	local i,n,v
 	
-	print("=== existing " .. TT[t].title .. " ===")
+	cnprint("=== existing " .. TT[t].title .. " ===")
 	type_view(t)
-	print()
 	
-	io.write("edit: ")
+	mprint("edit: ")
 	
-	i = io.read()
+	i = scr:getstr()
 	
 	n = number(i)
 	
@@ -261,13 +419,12 @@ end
 function type_delete(t)
 	local i,n
 	
-	print("=== existing " .. TT[t].title .. " ===")
+	cnprint("=== existing " .. TT[t].title .. " ===")
 	type_view(t)
-	print()
 	
-	io.write("delete: ")
+	mprint("delete: ")
 	
-	i = io.read()
+	i = scr:getstr()
 	
 	n = number(i)
 	
@@ -276,78 +433,101 @@ end
 
 
 function state_view(t) -- type_view was useful in other places
-	print("=== " .. TT[t].title .. " ===")
+	cnprint("=== " .. TT[t].title .. " ===")
+	cnprint()
+	
 	type_view(t)
-	print()
 end
 
 
 function report(r)
 	local fields = reports[r].fields
-	local cur = conn:execute(reports[r].query)
-	local res,out
+	local titles = reports[r].titles
+	local query  = reports[r].query
 	
-	res = cur:fetch({})
+	cnprint("=== " .. reports[r].title .. " Report ===")
+	cnprint()
 	
-	while res ~= nil do
-		out = ""
-		
-		for i,v in ipairs(res) do
-			out = out .. format_field(fields[i],v) .. " "
-		end
-		
-		print(out)
-		
-		res = cur:fetch({})
-	end
+	display_results(query,fields,titles,30,false)
 end
 
 
-local input,ninput
+local function main()
+	local catch
+	local input,ninput
 
-print "fdb: streamlined cli budget management (v1.0.5)"
-print_options()
+	curses.cbreak()
+	curses.echo(0)
+	curses.nl(0)
 
-while true do
-	io.write("option: ")
-	input = io.read()
-	ninput = number(input)
-	print()
-	
-	if state == S.MENU then -- options menu
-		if quit(input) then
-			break
-		elseif between(ninput,1,#options) then
-			state = ninput
-		end
-	elseif state == S.REPORT then -- reporting
-		if quit(input) then
-			state = S.MENU;
-		elseif between(ninput,1,#reports) then
-			report(ninput)
-			print()
-		end
-	else
-		if quit(input) then
-			state = S.MENU
-		elseif between(ninput,1,#types) then
-			if state == S.VIEW then state_view(ninput)
-			elseif state == S.CREATE then type_create(ninput)
-			elseif state == S.MODIFY then type_edit(ninput)
-			elseif state == S.DELETE then type_delete(ninput)
+	redraw()
+	print_options()
+
+	while true do
+		catch = false
+		
+		mprint("option: ")
+		
+		input = scr:getch()
+		if input < 256 then input = string.char(input) end
+		ninput = number(input)
+		
+		redraw()
+		
+		if state == S.MENU then -- options menu
+			if quit(input) then
+				curses.endwin()
+				break
+			elseif between(ninput,1,#options) then
+				state = ninput
+			end
+		elseif state == S.REPORT then -- reporting
+			if quit(input) then
+				state = S.MENU;
+			elseif between(ninput,1,#reports) then
+				catch = true
+				report(ninput)
+			end
+		else
+			if quit(input) then
+				state = S.MENU
+			elseif between(ninput,1,#types) then
+				catch = true
+				
+				if state == S.VIEW then state_view(ninput)
+				elseif state == S.CREATE then type_create(ninput)
+				elseif state == S.MODIFY then type_edit(ninput)
+				elseif state == S.DELETE then type_delete(ninput)
+				end
 			end
 		end
+		
+		if catch then
+			mprint("continue...")
+			scr:getch()
+		end
+		
+		redraw()
+		
+		if state == S.MENU then print_options()
+		elseif state == S.REPORT then print_reports()
+		else print_types()
+		end
 	end
-	
-	if state == S.MENU then print_options()
-	elseif state == S.REPORT then print_reports()
-	else print_types()
-	end
+
+
+	conn:close()
+	mysql:close()
 end
 
 
-conn:close()
-mysql:close()
+local function err (err)
+  curses.endwin ()
+  print "Caught an error:"
+  print (debug.traceback (err, 2))
+  os.exit (2)
+end
 
+xpcall(main,err)
 
-print "done"
+cnprint "done"

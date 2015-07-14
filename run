@@ -1,3 +1,23 @@
 #!/bin/sh
 
-luajit fdbc.lua
+cmd=luajit
+script=fdb.lua
+
+while getopts ":l" opt; do
+	case $opt in
+		l) # legacy lua mode
+			cmd=lua
+			;;
+		:)
+			echo "Unknown option -$OPTARG"
+			exit 1
+			;;
+	esac
+done
+
+command $cmd -v >/dev/null 2>&1 || {
+	echo "Command $cmd not present"
+	exit 2
+}
+
+$cmd $script
