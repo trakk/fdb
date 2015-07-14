@@ -42,6 +42,10 @@ function quit(input)
 	return (input == "x" or input == "X")
 end
 
+function yes(input)
+	return (input == "y" or input == "Y")
+end
+
 
 function format_field(k,v)
 	local disp = display[k]

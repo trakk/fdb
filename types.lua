@@ -151,7 +151,8 @@ types[T.ALLOCATIONS] = {
 	table = "allocations",
 	sql_id = "L",
 	subtype = T.ALLOCATION_ITEMS,
-	sum_field = "Unlimited",
+	sum_field = 0,
+	sum_endless = true,
 	id_field = "AllocationID",
 	names = {
 		{
@@ -180,6 +181,8 @@ types[T.TRANSACTIONS] = {
 	sql_id = "T",
 	subtype = T.LINE_ITEMS,
 	sum_field = "TransactionAmount",
+	sum_endless = false,
+	allocate = true,
 	id_field = "TransactionID",
 	names = {
 		{
