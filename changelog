@@ -4,6 +4,10 @@
 * overflow/scrolling for long transactions list
 
 
+# 2015-07-14 -- 1.1.9
+* make curses version the default (only) run mode
+* add lua/luajit selection in run script
+
 # 2015-05-25 -- 1.1.8
 * add dates to Monthly Net report so it actually means something
 
