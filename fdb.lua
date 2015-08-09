@@ -14,10 +14,8 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local title = "fdb: streamlined cli budget management (v1.1.9)"
-local sep_s = "==============================================="
-
 require "config"
+require "config-fdb"
 require "fns"
 require "types"
 
@@ -27,6 +25,9 @@ local scr = curses.initscr()
 local driver = require "luasql.mysql"
 local mysql = driver.mysql()
 local conn = mysql:connect(config.database,config.user,config.pass,config.host)
+
+local title = "fdb: streamlined cli budget management (v" .. fdb_config.version .. ")"
+local sep_s = "==============================================="
 
 
 local TT = types
